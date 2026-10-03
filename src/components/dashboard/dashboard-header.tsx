@@ -1,13 +1,15 @@
 "use client";
 
-import { LogOut, Moon, Sun } from "lucide-react";
+import { Languages, LogOut, Moon, Sun } from "lucide-react";
 
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "@/contexts/theme-context";
+import { useDirection } from "@/contexts/direction-context";
 
 export function DashboardHeader() {
   const { user, profile, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { direction, toggleDirection } = useDirection();
 
   async function handleSignOut() {
     try {
@@ -32,6 +34,9 @@ export function DashboardHeader() {
         <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">لوحة التحكم</p>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
+        <button type="button" onClick={toggleDirection} aria-label={direction === "rtl" ? "التبديل إلى الاتجاه من اليسار لليمين" : "التبديل إلى الاتجاه من اليمين لليسار"} title={direction === "rtl" ? "LTR" : "RTL"} className="rounded-xl border border-slate-200 p-2.5 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+          <Languages className="size-4" />
+        </button>
         <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"} className="rounded-xl border border-slate-200 p-2.5 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
           {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
         </button>
