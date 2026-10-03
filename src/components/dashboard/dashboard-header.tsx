@@ -1,12 +1,14 @@
 "use client";
 
 import { Languages, LogOut, Moon, Sun } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "@/contexts/theme-context";
 import { useDirection } from "@/contexts/direction-context";
 
 export function DashboardHeader() {
+  const router = useRouter();
   const { user, profile, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { direction, toggleDirection } = useDirection();
@@ -14,7 +16,7 @@ export function DashboardHeader() {
   async function handleSignOut() {
     try {
       await signOut();
-      window.location.assign("/login");
+      router.push("/login");
     } catch (error) {
       console.error("Sign out failed:", error);
     }
