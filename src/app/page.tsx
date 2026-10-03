@@ -49,10 +49,10 @@ export default function HomePage() {
 
         <div className="mt-9 flex flex-wrap gap-3">
           <Link
-            href="/dashboard"
+            href="/login"
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
           >
-            استكشف لوحة التحكم
+            ابدأ الآن
             <ArrowLeft className="size-4" />
           </Link>
           <a
