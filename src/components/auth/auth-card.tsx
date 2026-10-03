@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Github, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -9,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 type AuthMode = "login" | "register";
 
 export function AuthCard() {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +34,7 @@ export function AuthCard() {
           password
         });
         if (authError) throw authError;
-        window.location.assign("/dashboard");
+        router.push("/dashboard");
       } else {
         const { data, error: authError } = await supabase.auth.signUp({
           email: email.trim(),
