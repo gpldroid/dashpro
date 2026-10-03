@@ -16,7 +16,7 @@ export interface Project {
   description?: string;
   project_type: ProjectType;
   code_content: string;
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   is_public: boolean;
   thumbnail_url?: string;
   created_at: string;
