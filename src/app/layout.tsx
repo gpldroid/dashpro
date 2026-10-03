@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/contexts/auth-context";
+import { DirectionProvider } from "@/contexts/direction-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import "./globals.css";
 
@@ -20,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body>
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+        <DirectionProvider>
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
+        </DirectionProvider>
       </body>
     </html>
   );
