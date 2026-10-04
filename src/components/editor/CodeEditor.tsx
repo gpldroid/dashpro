@@ -12,6 +12,7 @@ interface CodeEditorProps {
   onSave?: (value?: string) => void;
   onFormat?: () => void;
   onCursorChange?: (line: number, column: number) => void;
+  onEditorReady?: (insertAtCursor: (text: string) => void) => void;
   readOnly?: boolean;
   height?: string;
 }
@@ -35,6 +36,7 @@ export function CodeEditor({
   onSave,
   onFormat,
   onCursorChange,
+  onEditorReady,
   readOnly = false,
   height = "calc(100vh - 280px)",
 }: CodeEditorProps) {
@@ -115,13 +117,35 @@ export function CodeEditor({
       run: () => formatRef.current?.(),
     });
 
+    onEditorReady?.((text) => {
+      const selection = editor.getSelection();
+      if (!selection) {
+        editor.executeEdits("dashpro-snippet", [
+          {
+            range: editor.getModel()?.getFullModelRange() ?? selection,
+            text,
+            forceMoveMarkers: true,
+          },
+        ]);
+        return;
+      }
+      editor.executeEdits("dashpro-snippet", [
+        {
+          range: selection,
+          text,
+          forceMoveMarkers: true,
+        },
+      ]);
+      editor.focus();
+    });
+
     editor.onDidChangeCursorPosition((event) => {
       onCursorChange?.(
         event.position.lineNumber,
         event.position.column,
       );
     });
-  }, [onCursorChange, readOnly]);
+  }, [onCursorChange, onEditorReady, readOnly]);
 
   return (
     <div className="overflow-hidden bg-[#0b1020]">
