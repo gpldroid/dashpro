@@ -11,6 +11,7 @@ const mobileLinks = [
   { href: "/dashboard", label: "الرئيسية" },
   { href: "/dashboard/projects", label: "المشاريع" },
   { href: "/dashboard/github", label: "مدير GitHub" },
+  { href: "/dashboard/local-files", label: "الملفات المحلية" },
   { href: "/dashboard/editor", label: "المحرر" },
   { href: "/dashboard/snippets", label: "الأكواد" },
   { href: "/dashboard/components", label: "المكونات" },
