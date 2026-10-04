@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Copy, Download, ExternalLink, FilePlus2, FolderPlus, GitBranch, GitCompare, Github, GitPullRequest, Loader2, Plus, RefreshCw, RotateCcw, Save, Search, Trash2, X } from "lucide-react";
+import { Check, Copy, Download, ExternalLink, FilePlus2, FolderPlus, GitBranch, GitCompare, Github, GitPullRequest, Loader2, Plus, RefreshCw, RotateCcw, Search, Trash2, X } from "lucide-react";
 import { CodeEditor, type EditorLanguage } from "@/components/editor/CodeEditor";
 import { FileExplorer } from "@/components/github/FileExplorer";
 import { DiffViewer } from "@/components/github/DiffViewer";
@@ -74,6 +74,7 @@ export function GithubIdeWorkspace(){
     setLoading(true);setError("");
     try{const r=await githubService.listRepositories(session);setRepos(r);if(!repo&&r[0]){setRepo(r[0]);setBranch(r[0].default_branch)}}catch(e){setError(getErrorMessage(e))}finally{setLoading(false)}
   },[session,repo]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- starts an async GitHub fetch
   useEffect(()=>{void loadRepos()},[loadRepos]);
 
   const loadRemote=useCallback(async()=>{
@@ -81,6 +82,7 @@ export function GithubIdeWorkspace(){
     setLoading(true);setError("");
     try{const[o,r]=repo.full_name.split("/");const[b,t]=await Promise.all([githubService.listBranches(session,o,r),githubService.getTree(session,o,r,branch||repo.default_branch)]);setBranches(b);setTree(t.filter(x=>x.type==="blob"));setStatus("تم تحديث GitHub")}catch(e){setError(getErrorMessage(e))}finally{setLoading(false)}
   },[session,repo,branch]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- starts an async GitHub fetch
   useEffect(()=>{if(repo)void loadRemote()},[repo,branch,loadRemote]);
 
   const open=useCallback(async(path:string)=>{
