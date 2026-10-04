@@ -22,7 +22,7 @@ export function ProjectCard({ project }: { project: ProjectRow }) {
       </p>
       <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-400 dark:border-slate-800">
         <span>{new Date(project.updated_at).toLocaleDateString("ar")}</span>
-        <Link href={`/dashboard/projects/${project.id}`} className="inline-flex items-center gap-1 font-semibold text-indigo-600 transition group-hover:text-indigo-700 dark:text-indigo-300">
+        <Link href={`/dashboard/editor?id=${project.id}`} className="inline-flex items-center gap-1 font-semibold text-indigo-600 transition group-hover:text-indigo-700 dark:text-indigo-300">
           فتح المشروع <ArrowUpLeft className="size-3.5" />
         </Link>
       </div>
