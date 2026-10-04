@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 
-export type EditorLanguage = "xml" | "html" | "css" | "javascript";
+export type EditorLanguage =
+  | "xml"
+  | "html"
+  | "css"
+  | "javascript"
+  | "typescript"
+  | "json"
+  | "markdown"
+  | "sql"
+  | "plaintext";
 
 interface CodeEditorProps {
   value: string;
@@ -42,6 +51,7 @@ export function CodeEditor({
 }: CodeEditorProps) {
   const saveRef = useRef(onSave);
   const formatRef = useRef(onFormat);
+
   useEffect(() => {
     saveRef.current = onSave;
     formatRef.current = onFormat;
@@ -70,7 +80,10 @@ export function CodeEditor({
 
     monaco.languages.registerCompletionItemProvider("xml", {
       triggerCharacters: ["<", ":", " "],
-      provideCompletionItems(model: { getWordUntilPosition: (position: { lineNumber: number; column: number }) => { startColumn: number } }, position: { lineNumber: number; column: number }) {
+      provideCompletionItems(
+        model: { getWordUntilPosition: (position: { lineNumber: number; column: number }) => { startColumn: number } },
+        position: { lineNumber: number; column: number },
+      ) {
         const word = model.getWordUntilPosition(position);
         const range = {
           startLineNumber: position.lineNumber,
@@ -93,14 +106,14 @@ export function CodeEditor({
 
     editor.addAction({
       id: "dashpro-save",
-      label: "حفظ قالب Blogger",
+      label: "حفظ التغييرات في GitHub",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       run: async () => {
         if (readOnly) return;
         try {
           await editor.getAction("editor.action.formatDocument")?.run();
         } catch {
-          // Some languages do not expose a formatter; saving must still work.
+          // Formatting is optional; saving must still work.
         }
         saveRef.current?.(editor.getValue());
       },
@@ -108,45 +121,25 @@ export function CodeEditor({
 
     editor.addAction({
       id: "dashpro-format",
-      label: "تنسيق قالب Blogger",
-      keybindings: [
-        monaco.KeyMod.Alt |
-          monaco.KeyMod.Shift |
-          monaco.KeyCode.KeyF,
-      ],
+      label: "تنسيق الملف",
+      keybindings: [monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
       run: () => formatRef.current?.(),
     });
 
     onEditorReady?.((text) => {
       const selection = editor.getSelection();
-      if (!selection) {
-        const model = editor.getModel();
-        if (!model) return;
-        editor.executeEdits("dashpro-snippet", [
-          {
-            range: model.getFullModelRange(),
-            text,
-            forceMoveMarkers: true,
-          },
-        ]);
-        editor.focus();
-        return;
-      }
-      editor.executeEdits("dashpro-snippet", [
-        {
-          range: selection,
-          text,
-          forceMoveMarkers: true,
-        },
-      ]);
+      const model = editor.getModel();
+      if (!model) return;
+      editor.executeEdits("dashpro-snippet", [{
+        range: selection ?? model.getFullModelRange(),
+        text,
+        forceMoveMarkers: true,
+      }]);
       editor.focus();
     });
 
     editor.onDidChangeCursorPosition((event) => {
-      onCursorChange?.(
-        event.position.lineNumber,
-        event.position.column,
-      );
+      onCursorChange?.(event.position.lineNumber, event.position.column);
     });
   }, [onCursorChange, onEditorReady, readOnly]);
 
@@ -174,6 +167,7 @@ export function CodeEditor({
           smoothScrolling: true,
           scrollBeyondLastLine: false,
           renderWhitespace: "selection",
+          stickyScroll: { enabled: true },
           padding: { top: 12, bottom: 12 },
           readOnly,
         }}
