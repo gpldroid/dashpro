@@ -332,3 +332,8 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+export type ProfileRow = Tables<"profiles">;
+export type ProjectRow = Tables<"projects">;
+export type SnippetRow = Tables<"snippets">;
+export type TemplateComponentRow = Tables<"template_components">;
