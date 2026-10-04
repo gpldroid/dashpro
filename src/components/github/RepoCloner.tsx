@@ -1,0 +1,13 @@
+"use client";
+import { useState } from "react";
+import { Download, Loader2, Link2, Search } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { githubService } from "@/lib/github/githubService";
+import { parseRepositoryUrl } from "@/lib/github/octokitClient";
+import type { GithubRepository } from "@/types";
+export function RepoCloner({onSelect}:{onSelect:(repo:GithubRepository)=>void}){
+ const {session}=useAuth();const [url,setUrl]=useState("");const [loading,setLoading]=useState(false);const [error,setError]=useState("");const [repos,setRepos]=useState<GithubRepository[]>([]);
+ const importRepo=async()=>{setError("");const parsed=parseRepositoryUrl(url);if(!parsed){setError("رابط GitHub غير صالح.");return;}setLoading(true);try{const list=await githubService.listRepositories(session);const found=list.find(r=>r.full_name.toLowerCase()===`${parsed.owner}/${parsed.repo}`.toLowerCase());if(!found)throw new Error("المستودع غير موجود ضمن المستودعات التي تتيحها جلسة GitHub الحالية.");onSelect(found);setUrl("");}catch(e){setError(e instanceof Error?e.message:"تعذر استيراد المستودع.");}finally{setLoading(false);}};
+ const load=async()=>{setError("");setLoading(true);try{setRepos(await githubService.listRepositories(session));}catch(e){setError(e instanceof Error?e.message:"تعذر تحميل المستودعات.");}finally{setLoading(false);}};
+ return <section className="space-y-3"><div className="flex gap-2"><input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://github.com/owner/repository" className="min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm dark:bg-slate-950"/><button onClick={()=>void importRepo()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">{loading?<Loader2 className="size-4 animate-spin"/>:<Link2 className="size-4"/>}استيراد</button></div><button onClick={()=>void load()} className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold"><Search className="size-3.5"/>تحميل حساب GitHub</button>{error&&<p role="alert" className="rounded-xl bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}{repos.length>0&&<div className="grid gap-2 md:grid-cols-2">{repos.slice(0,8).map(r=><button key={r.id} onClick={()=>onSelect(r)} className="flex items-center gap-3 rounded-xl border p-3 text-right hover:bg-slate-50 dark:hover:bg-slate-800"><Download className="size-4"/><span className="min-w-0"><strong className="block truncate text-sm">{r.full_name}</strong><small className="text-slate-500">{r.private?"خاص":"عام"}</small></span></button>)}</div>}</section>;
+}
