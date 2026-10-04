@@ -28,27 +28,16 @@ function validatePublicConfig() {
   }
 }
 
-/**
- * Returns one browser client for the lifetime of the app.
- * Reusing the client avoids duplicate auth listeners and competing refresh cycles.
- */
-export function createClient(): SupabaseClient<Database> {
-  if (typeof window === "undefined") {
-    throw new Error("The Supabase browser client can only be created in the browser.");
-  }
-
-  if (browserClient) return browserClient;
-  validatePublicConfig();
-
-  browserClient = createSupabaseClient<Database>(
+function buildClient(isBrowser: boolean): SupabaseClient<Database> {
+  return createSupabaseClient<Database>(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY,
     {
       auth: {
         flowType: "implicit",
-        detectSessionInUrl: true,
-        persistSession: true,
-        autoRefreshToken: true
+        detectSessionInUrl: isBrowser,
+        persistSession: isBrowser,
+        autoRefreshToken: isBrowser
       },
       global: {
         headers: {
@@ -57,6 +46,23 @@ export function createClient(): SupabaseClient<Database> {
       }
     }
   );
+}
+
+/**
+ * Browser calls reuse a singleton to prevent duplicate auth listeners and
+ * competing token refreshes. Server rendering gets an isolated, non-persistent
+ * client so Next.js can safely prerender client components.
+ */
+export function createClient(): SupabaseClient<Database> {
+  validatePublicConfig();
+
+  if (typeof window === "undefined") {
+    return buildClient(false);
+  }
+
+  if (!browserClient) {
+    browserClient = buildClient(true);
+  }
 
   return browserClient;
 }
