@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable react-hooks/set-state-in-effect */
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
@@ -13,29 +11,32 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     const supabase = createClient();
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get("code");
-    const requestedNext = url.searchParams.get("next");
-    const next =
-      requestedNext?.startsWith("/dashpro/") && !requestedNext.startsWith("//")
-        ? requestedNext
-        : "/dashpro/dashboard";
 
-    if (!code) {
-      setError("لم يصل رمز المصادقة من مزود تسجيل الدخول.");
-      return;
+    async function completeLogin() {
+      const { data, error: sessionError } = await supabase.auth.getSession();
+
+      if (!active) return;
+
+      if (sessionError) {
+        setError(sessionError.message);
+        return;
+      }
+
+      if (data.session) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      setError("لم يتم إنشاء جلسة تسجيل الدخول. أعد المحاولة من صفحة تسجيل الدخول.");
     }
 
-    void supabase.auth
-      .exchangeCodeForSession(code)
-      .then(({ error: exchangeError }) => {
-        if (exchangeError) {
-          setError(exchangeError.message);
-          return;
-        }
-        router.replace(next);
-      });
+    void completeLogin();
+
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   if (error) {
