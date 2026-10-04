@@ -2,7 +2,6 @@
 
 import { useCallback, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import type * as Monaco from "monaco-editor";
 
 export type EditorLanguage = "xml" | "html" | "css" | "javascript";
 
@@ -10,7 +9,7 @@ interface CodeEditorProps {
   value: string;
   language?: EditorLanguage;
   onChange: (value: string) => void;
-  onSave?: () => void;
+  onSave?: (value?: string) => void;
   onFormat?: () => void;
   onCursorChange?: (line: number, column: number) => void;
   readOnly?: boolean;
@@ -68,12 +67,14 @@ export function CodeEditor({
     monaco.languages.registerCompletionItemProvider("xml", {
       triggerCharacters: ["<", ":", " "],
       provideCompletionItems(model, position) {
-        const range = new monaco.Range(
-          position.lineNumber,
-          position.column,
-          position.lineNumber,
-          position.column,
-        );
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: position.column,
+        };
+
         return {
           suggestions: bloggerCompletionTags.map((tag) => ({
             label: tag,
@@ -90,20 +91,35 @@ export function CodeEditor({
       id: "dashpro-save",
       label: "حفظ قالب Blogger",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
-      run: () => saveRef.current?.(),
+      run: async () => {
+        if (readOnly) return;
+        try {
+          await editor.getAction("editor.action.formatDocument")?.run();
+        } catch {
+          // Some languages do not expose a formatter; saving must still work.
+        }
+        saveRef.current?.(editor.getValue());
+      },
     });
 
     editor.addAction({
       id: "dashpro-format",
       label: "تنسيق قالب Blogger",
-      keybindings: [monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
+      keybindings: [
+        monaco.KeyMod.Alt |
+          monaco.KeyMod.Shift |
+          monaco.KeyCode.KeyF,
+      ],
       run: () => formatRef.current?.(),
     });
 
     editor.onDidChangeCursorPosition((event) => {
-      onCursorChange?.(event.position.lineNumber, event.position.column);
+      onCursorChange?.(
+        event.position.lineNumber,
+        event.position.column,
+      );
     });
-  }, [onCursorChange]);
+  }, [onCursorChange, readOnly]);
 
   return (
     <div className="overflow-hidden bg-[#0b1020]">
