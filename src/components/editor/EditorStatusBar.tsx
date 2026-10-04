@@ -1,6 +1,11 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, CircleAlert, FileCode2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CircleAlert,
+  FileCode2,
+} from "lucide-react";
 
 import type { BloggerDiagnostic } from "@/utils/bloggerParser";
 
@@ -21,8 +26,12 @@ export function EditorStatusBar({
   language,
   saveState,
 }: EditorStatusBarProps) {
-  const errors = diagnostics.filter((item) => item.severity === "error").length;
-  const warnings = diagnostics.filter((item) => item.severity === "warning").length;
+  const errors = diagnostics.filter(
+    (item) => item.severity === "error",
+  ).length;
+  const warnings = diagnostics.filter(
+    (item) => item.severity === "warning",
+  ).length;
   const lines = content ? content.split("\n").length : 1;
 
   return (
@@ -31,7 +40,9 @@ export function EditorStatusBar({
         <span className="inline-flex items-center gap-1.5">
           <FileCode2 className="size-3.5" /> {language.toUpperCase()}
         </span>
-        <span>السطر {line}، العمود {column}</span>
+        <span>
+          السطر {line}، العمود {column}
+        </span>
         <span>{lines} سطر</span>
         <span className={errors ? "text-rose-300" : "text-emerald-300"}>
           <CircleAlert className="mr-1 inline size-3.5" /> {errors} أخطاء
@@ -52,6 +63,7 @@ export function EditorStatusBar({
           </span>
         )}
       </div>
+
       {diagnostics.length > 0 && (
         <div className="max-h-36 overflow-auto border-t border-slate-800">
           {diagnostics.slice(0, 20).map((item, index) => (
@@ -59,7 +71,13 @@ export function EditorStatusBar({
               key={`${item.code}-${item.offset}-${index}`}
               className="flex gap-3 px-4 py-1.5 hover:bg-slate-900"
             >
-              <span className={item.severity === "error" ? "text-rose-300" : "text-amber-300"}>
+              <span
+                className={
+                  item.severity === "error"
+                    ? "text-rose-300"
+                    : "text-amber-300"
+                }
+              >
                 {item.severity === "error" ? "خطأ" : "تنبيه"}
               </span>
               <span>
