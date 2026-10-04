@@ -1,3 +1,32 @@
 "use client";
+
 import { Diff } from "lucide-react";
-export function DiffViewer({before,after}:{before:string;after:string}){const a=before.split("\n"),b=after.split("\n"),max=Math.max(a.length,b.length);return <div className="overflow-auto rounded-xl border bg-slate-950 p-3 font-mono text-xs text-slate-200" dir="ltr"><div className="mb-2 flex items-center gap-2 text-slate-400"><Diff className="size-4"/>مقارنة النص</div>{Array.from({length:max},(_,i)=>{const same=a[i]===b[i];return <div key={i} className={same?"":"bg-amber-500/10"}><span className="me-3 inline-block w-8 text-right text-slate-500">{i+1}</span>{same?<span> {a[i]??""}</span>:<><span className="text-rose-300">- {a[i]??""}</span><br/><span className="text-emerald-300">+ {b[i]??""}</span></>}</div>})}</div>}
+import Editor from "@monaco-editor/react";
+
+export function DiffViewer({ before, after, language = "plaintext" }: { before: string; after: string; language?: string }) {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-slate-950">
+      <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2 text-xs text-slate-400">
+        <Diff className="size-4" /> مقارنة حقيقية
+      </div>
+      <Editor
+        height="560px"
+        theme="dashpro-dark"
+        language={language}
+        original={before}
+        modified={after}
+        options={{
+          readOnly: true,
+          renderSideBySide: true,
+          automaticLayout: true,
+          minimap: { enabled: false },
+          lineNumbers: "on",
+          folding: true,
+          scrollBeyondLastLine: false,
+          renderOverviewRuler: true,
+        }}
+        loading={<div className="flex h-96 items-center justify-center text-sm text-slate-400">جارٍ تحميل المقارنة…</div>}
+      />
+    </div>
+  );
+}
