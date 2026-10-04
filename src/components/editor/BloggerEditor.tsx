@@ -28,34 +28,38 @@ export function BloggerEditor({
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [cursor, setCursor] = useState({ line: 1, column: 1 });
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const saveRef = useRef<() => Promise<void>>(async () => undefined);
+  const saveRef = useRef<(source?: string) => Promise<void>>(async () => undefined);
 
   const analysis = useMemo(() => parseBloggerXml(code), [code]);
   const diagnostics = analysis.diagnostics;
 
-  const save = useCallback(async () => {
-    setSaveState("saving");
+  const save = useCallback(
+    async (source = code) => {
+      setSaveState("saving");
 
-    try {
-      const supabase = createClient();
-      const xml = generateBloggerXml(code);
-      const { error } = await supabase
-        .from("projects")
-        .update({ code_content: xml })
-        .eq("id", projectId);
+      try {
+        const supabase = createClient();
+        const xml = generateBloggerXml(source);
+        const { error } = await supabase
+          .from("projects")
+          .update({ code_content: xml })
+          .eq("id", projectId);
 
-      if (error) {
+        if (error) {
+          console.error("DashPro project save failed:", error);
+          setSaveState("unsaved");
+          return;
+        }
+
+        setCode((current) => (current === source ? xml : current));
+        setSaveState("saved");
+      } catch (error) {
         console.error("DashPro project save failed:", error);
         setSaveState("unsaved");
-        return;
       }
-
-      setSaveState("saved");
-    } catch (error) {
-      console.error("DashPro project save failed:", error);
-      setSaveState("unsaved");
-    }
-  }, [code, projectId]);
+    },
+    [code, projectId],
+  );
 
   saveRef.current = save;
 
@@ -91,8 +95,7 @@ export function BloggerEditor({
 
   const insert = useCallback(
     (snippet: "widget" | "post-if" | "home-if") => {
-      const nextCode = insertBloggerSnippet(code, snippet);
-      updateCode(nextCode);
+      updateCode(insertBloggerSnippet(code, snippet));
     },
     [code, updateCode],
   );
@@ -158,7 +161,7 @@ export function BloggerEditor({
           value={code}
           language="xml"
           onChange={updateCode}
-          onSave={() => void save()}
+          onSave={(source) => void save(source)}
           onFormat={format}
           onCursorChange={(line, column) => setCursor({ line, column })}
         />
