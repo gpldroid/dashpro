@@ -21,10 +21,10 @@ export function Sidebar() {
   const pathname = usePathname();
   const { t, language } = useLanguage();
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-e border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-900 lg:flex">
-      <Link href="/dashboard" className="mb-8 inline-flex shrink-0 px-3 text-2xl font-black tracking-tight text-slate-950 dark:text-white">Dash<span className="text-indigo-600">Pro</span></Link>
+    <aside className="sticky top-0 hidden h-screen max-h-screen w-60 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-e border-slate-200 bg-white px-3 py-5 dark:border-slate-800 dark:bg-slate-900 xl:w-64 xl:px-4">
+      <Link href="/dashboard" className="mb-8 inline-flex min-h-10 shrink-0 items-center px-3 text-2xl font-black tracking-tight text-slate-950 dark:text-white">Dash<span className="text-indigo-600">Pro</span></Link>
       <p className="mb-3 px-3 text-xs font-bold tracking-wider text-slate-400">{t("workspace")}</p>
-      <nav aria-label={t("navigation")} className="flex flex-col gap-1">
+      <nav aria-label={t("navigation")} className="flex flex-col gap-1.5">
         {navigation.map(({ href, key, icon: Icon }) => {
           const active = href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
           return (
