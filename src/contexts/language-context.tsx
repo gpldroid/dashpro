@@ -33,6 +33,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = window.localStorage.getItem("dashpro-language");
     const next: Language = stored === "en" || stored === "ar" ? stored : "ar";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the persisted locale after hydration
     setLanguageState(next);
   }, []);
   useEffect(() => {
