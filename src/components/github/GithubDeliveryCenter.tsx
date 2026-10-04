@@ -52,7 +52,9 @@ export function GithubDeliveryCenter() {
     finally { setLoading(false); }
   }, [session, repo, branch, base]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- starts an async GitHub fetch
   useEffect(() => { void loadRepos(); }, [loadRepos]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- starts an async GitHub fetch
   useEffect(() => { void loadData(); }, [loadData]);
 
   const selectRepo = (value: string) => {
