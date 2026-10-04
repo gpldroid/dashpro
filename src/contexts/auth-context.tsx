@@ -48,11 +48,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    void supabase.auth.getSession().then(({ data, error }) => {
-      if (!active) return;
-      setSession(error ? null : data.session);
-      setLoading(false);
-    });
+    void supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (!active) return;
+        setSession(error ? null : data.session);
+        setLoading(false);
+      })
+      .catch((error: unknown) => {
+        console.error("Supabase session restore failed:", error);
+        if (!active) return;
+        setSession(null);
+        setLoading(false);
+      });
 
     return () => {
       active = false;
