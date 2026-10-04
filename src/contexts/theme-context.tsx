@@ -6,6 +6,14 @@ type Theme = "light" | "dark";
 type ThemeContextValue = { theme: Theme; toggleTheme: () => void; setTheme: (theme: Theme) => void };
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+function applyTheme(next: Theme) {
+  const root = document.documentElement;
+  root.classList.toggle("dark", next === "dark");
+  root.dataset.theme = next;
+  root.style.colorScheme = next;
+  try { window.localStorage.setItem("dashpro-theme", next); } catch { /* storage may be unavailable */ }
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
 
@@ -17,16 +25,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       : window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the persisted theme after hydration
     setThemeState(initial);
+    applyTheme(initial);
   }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.style.colorScheme = theme;
-    try { window.localStorage.setItem("dashpro-theme", theme); } catch { /* storage may be unavailable */ }
-  }, [theme]);
+  useEffect(() => { applyTheme(theme); }, [theme]);
 
-  const setTheme = useCallback((next: Theme) => setThemeState(next), []);
-  const toggleTheme = useCallback(() => setThemeState(current => current === "dark" ? "light" : "dark"), []);
+  const setTheme = useCallback((next: Theme) => {
+    applyTheme(next);
+    setThemeState(next);
+  }, []);
+  const toggleTheme = useCallback(() => {
+    const next = theme === "dark" ? "light" : "dark";
+    applyTheme(next);
+    setThemeState(next);
+  }, [theme]);
   const value = useMemo(() => ({ theme, toggleTheme, setTheme }), [theme, toggleTheme, setTheme]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
