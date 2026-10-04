@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CodeEditor } from "@/components/editor/CodeEditor";
+import { LayoutBuilder } from "@/components/builder/LayoutBuilder";
+import { StyleCustomizer } from "@/components/builder/StyleCustomizer";
+import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
 import { EditorStatusBar } from "@/components/editor/EditorStatusBar";
 import { EditorToolbar, type SaveState } from "@/components/editor/EditorToolbar";
 import { createClient } from "@/lib/supabase/client";
@@ -32,6 +35,20 @@ export function BloggerEditor({
 
   const analysis = useMemo(() => parseBloggerXml(code), [code]);
   const diagnostics = analysis.diagnostics;
+  const [builderTab, setBuilderTab] = useState<"preview" | "layout" | "style">("preview");
+  const [previewCss, setPreviewCss] = useState("");
+
+  const updateSkinVariable = useCallback((name: string, value: string) => {
+    const escaped = name.replace(/[.*+?^$()|[\]\\]/g, "\\  const diagnostics = analysis.diagnostics;");
+    const pattern = new RegExp("(<Variable\\\\b[^>]*\\\\bname=[\\\"']" + escaped + "[\\\"'][^>]*?(?:value|default)=[\\\"'])([^\\\"']*)([\\\"'])", "i");
+    const next = code.replace(pattern, "$1" + value + "$3");
+    if (next !== code) updateCode(next);
+    if (/font/i.test(name)) {
+      setPreviewCss("@import url('https://fonts.googleapis.com/css2?family=" + encodeURIComponent(value).replace(/%20/g, "+") + ":wght@400;500;600;700&display=swap');body{font-family:'" + value + "',sans-serif}");
+    } else {
+      setPreviewCss("--" + name + ":" + value + ";");
+    }
+  }, [code]);
 
   const save = useCallback(
     async (source = code) => {
@@ -81,6 +98,51 @@ export function BloggerEditor({
     },
     [scheduleSave],
   );
+
+  const reorderWidgets = useCallback((sectionId: string, activeId: string, overId: string) => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(code, "application/xml");
+      if (doc.querySelector("parsererror")) return;
+      const section = Array.from(doc.getElementsByTagName("*")).find(
+        (node) => (node.tagName === "b:section" || node.localName === "section") && node.getAttribute("id") === sectionId,
+      );
+      if (!section) return;
+      const widgets = Array.from(section.children).filter((node) => node.tagName === "b:widget" || node.localName === "widget");
+      const active = widgets.find((node) => node.getAttribute("id") === activeId);
+      const over = widgets.find((node) => node.getAttribute("id") === overId);
+      if (!active || !over || active === over) return;
+      section.insertBefore(active, over);
+      updateCode(new XMLSerializer().serializeToString(doc));
+    } catch (error) {
+      console.error("DashPro layout reorder failed:", error);
+    }
+  }, [code, updateCode]);
+
+  const addComponent = useCallback((sectionId: string, component: { type: string; title: string }) => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(code, "application/xml");
+      if (doc.querySelector("parsererror")) return;
+      const section = Array.from(doc.getElementsByTagName("*")).find(
+        (node) => (node.tagName === "b:section" || node.localName === "section") && node.getAttribute("id") === sectionId,
+      );
+      if (!section) return;
+      const widget = doc.createElement("b:widget");
+      widget.setAttribute("id", component.type + "DashPro" + Date.now());
+      widget.setAttribute("type", component.type);
+      widget.setAttribute("title", component.title);
+      widget.setAttribute("locked", "false");
+      const includable = doc.createElement("b:includable");
+      includable.setAttribute("id", "main");
+      includable.textContent = component.title;
+      widget.appendChild(includable);
+      section.appendChild(widget);
+      updateCode(new XMLSerializer().serializeToString(doc));
+    } catch (error) {
+      console.error("DashPro component insertion failed:", error);
+    }
+  }, [code, updateCode]);
 
   const format = useCallback(() => {
     try {
@@ -165,6 +227,21 @@ export function BloggerEditor({
           onFormat={format}
           onCursorChange={(line, column) => setCursor({ line, column })}
         />
+
+        <div className="border-t border-slate-800 bg-slate-950 p-3">
+          <div className="mb-3 flex flex-wrap gap-2">
+            {([
+              ["preview", "المعاينة الحية"],
+              ["layout", "باني التخطيط"],
+              ["style", "المظهر والألوان"],
+            ] as const).map(([value, label]) => (
+              <button key={value} type="button" onClick={() => setBuilderTab(value)} className={builderTab === value ? "rounded-lg bg-white px-3 py-2 text-xs font-bold text-slate-900" : "rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-slate-300"}>{label}</button>
+            ))}
+          </div>
+          {builderTab === "preview" ? <PreviewCanvas code={code} customCss={previewCss} /> : null}
+          {builderTab === "layout" ? <LayoutBuilder sections={analysis.sections} onReorder={reorderWidgets} onAddComponent={addComponent} /> : null}
+          {builderTab === "style" ? <StyleCustomizer variables={analysis.skin?.variables ?? []} onChange={updateSkinVariable} /> : null}
+        </div>
 
         <EditorStatusBar
           line={cursor.line}
