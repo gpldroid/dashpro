@@ -1,96 +1,27 @@
 "use client";
+import { useMemo,useState } from "react";
+import { Github,Play,Save } from "lucide-react";
+import { BloggerXmlEditor } from "@/components/editor/BloggerXmlEditor";
+import { UniversalCodeEditor } from "@/components/editor/UniversalCodeEditor";
+import { RepoCloner } from "@/components/github/RepoCloner";
+import { WebAppViewer } from "@/components/preview/WebAppViewer";
+import { TemplateSelector } from "@/components/templates/TemplateSelector";
+import { defaultDummyBlogData,injectBloggerDummyData } from "@/lib/blogger/dummyData";
+import { starterTemplates } from "@/data/starterTemplates";
+import { useAuth } from "@/contexts/auth-context";
+import { githubService } from "@/lib/github/githubService";
+import type { GithubRepository,StarterTemplate } from "@/types";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ArrowLeft, FolderKanban, Plus, Sparkles } from "lucide-react";
-
-import { ProjectsList } from "@/components/dashboard/ProjectsList";
-import { createClient } from "@/lib/supabase/client";
-import type { ProjectRow } from "@/types/database";
-
-export default function DashboardPage() {
-  const [projects, setProjects] = useState<ProjectRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const supabase = createClient();
-    void supabase
-      .from("projects")
-      .select("*")
-      .order("updated_at", { ascending: false })
-      .limit(6)
-      .then(({ data, error: queryError }) => {
-        setProjects((data ?? []) as ProjectRow[]);
-        setError(Boolean(queryError));
-        setLoading(false);
-      });
-  }, []);
-
-  return (
-    <div className="mx-auto max-w-7xl">
-      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 p-7 text-white shadow-xl shadow-indigo-600/15 sm:p-10">
-        <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold"><Sparkles className="size-3.5" /> مساحة الإبداع تبدأ هنا</div>
-            <h1 className="text-3xl font-black tracking-tight sm:text-4xl">أهلاً بك في DashPro</h1>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-indigo-100 sm:text-base">أنشئ قوالب Blogger ومواقعك، ونظّم أكوادك ومكوناتك من لوحة تحكم واحدة.</p>
-          </div>
-          <Link href="/dashboard/projects/new" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50"><Plus className="size-4" /> مشروع جديد</Link>
-        </div>
-      </section>
-
-      <section className="mt-9">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">مشاريعك الأخيرة</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">تابع آخر المشاريع التي عملت عليها.</p>
-          </div>
-          <Link href="/dashboard/projects" className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-300">جميع المشاريع <ArrowLeft className="size-4" /></Link>
-        </div>
-        {error ? (
-          <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">تعذر تحميل المشاريع. تأكد من سياسات قاعدة البيانات.</div>
-        ) : loading ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">جارٍ تحميل المشاريع…</div>
-        ) : (
-          <ProjectsList projects={projects} />
-        )}
-      </section>
-
-      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div><h2 className="text-sm font-extrabold text-slate-900 dark:text-white">مسار العمل</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">انتقل مباشرة بين مراحل بناء مشروعك.</p></div>
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">التصدير النهائي متاح من المحرر</span>
-        </div>
-        <nav aria-label="مسار العمل" className="grid gap-2 sm:grid-cols-4">
-          {[
-            ["المشاريع", "/dashboard/projects"],
-            ["محرر الأكواد", "/dashboard/editor"],
-            ["الباني البصري", "/dashboard/editor"],
-            ["مكتبة الأكواد", "/dashboard/snippets"]
-          ].map(([label, href], index) => (
-            <Link key={label} href={href} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-800 dark:text-slate-200 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/10">
-              <span className="me-2 text-xs text-indigo-500">{index + 1}</span>{label}
-            </Link>
-          ))}
-        </nav>
-      </section>
-
-      <section className="mt-8 grid gap-4 md:grid-cols-3">
-        <QuickLink href="/dashboard/editor" title="محرر القوالب" description="ابدأ تعديل XML وHTML." icon="code" />
-        <QuickLink href="/dashboard/snippets" title="مكتبة الأكواد" description="احتفظ بالمقاطع التي تستخدمها." icon="snippets" />
-        <QuickLink href="/dashboard/components" title="مكونات جاهزة" description="استخدم أجزاء الواجهات القابلة لإعادة الاستخدام." icon="components" />
-      </section>
-    </div>
-  );
-}
-
-function QuickLink({ href, title, description, icon }: { href: string; title: string; description: string; icon: "code" | "snippets" | "components" }) {
-  const Icon = icon === "code" ? FolderKanban : icon === "snippets" ? Sparkles : Plus;
-  return (
-    <Link href={href} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-indigo-200 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><Icon className="size-5" /></div>
-      <div><p className="font-bold text-slate-900 dark:text-white">{title}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{description}</p></div>
-    </Link>
-  );
+export default function DashboardPage(){
+ const {session}=useAuth();const [template,setTemplate]=useState<StarterTemplate>(starterTemplates[0]);const [code,setCode]=useState(template.files[0].content);const [repo,setRepo]=useState<GithubRepository|null>(null);const [status,setStatus]=useState("");
+ const preview=useMemo(()=>injectBloggerDummyData(code,{data:defaultDummyBlogData}).content,[code]);
+ const selectTemplate=(t:StarterTemplate)=>{setTemplate(t);setCode(t.files[0]?.content??"");setStatus("تم تحميل القالب في المحرر.");};
+ const save=async()=>{if(!repo||!session){setStatus("اختر مستودع GitHub وسجّل الدخول أولًا.");return;}try{const [owner,name]=repo.full_name.split("/");await githubService.commit(session,owner,name,repo.default_branch,"feat: update Blogger template from DashPro",[{path:template.entryFile,content:code}]);setStatus("تم الحفظ مباشرة في GitHub.");}catch(e){setStatus(e instanceof Error?e.message:"تعذر الحفظ في GitHub.");}};
+ return <div className="space-y-6" dir="rtl">
+  <section className="rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-700 p-7 text-white shadow-xl"><div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"><div><p className="mb-2 text-xs font-bold uppercase tracking-widest text-indigo-200">DashPro Cloud Studio</p><h1 className="text-3xl font-black">استوديو التطوير السحابي</h1><p className="mt-2 max-w-2xl text-sm leading-7 text-indigo-100">حرّر قوالب Blogger، افحص البنية، عاين التصميم على عدة أجهزة، ثم احفظ مباشرة في GitHub.</p></div><button type="button" onClick={()=>void save()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-indigo-700"><Save className="size-4"/>حفظ مباشر في GitHub</button></div></section>
+  {status&&<div role="status" className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-700">{status}</div>}
+  <section className="rounded-2xl border bg-white p-4 dark:border-slate-800 dark:bg-slate-900"><div className="mb-4 flex items-center gap-2"><Play className="size-4 text-indigo-600"/><h2 className="font-black">1. القوالب الجاهزة</h2></div><TemplateSelector selected={template.id} onSelect={selectTemplate}/></section>
+  <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,.75fr)]"><div className="rounded-2xl border bg-white p-3 dark:border-slate-800 dark:bg-slate-900"><div className="mb-3 flex items-center justify-between"><h2 className="font-black">2. محرر Blogger XML</h2><span className="text-xs text-slate-500">{template.name}</span></div><BloggerXmlEditor value={code} onChange={setCode} onSave={setCode}/></div><div className="space-y-4"><div className="rounded-2xl border bg-white p-4 dark:border-slate-800 dark:bg-slate-900"><div className="mb-3 flex items-center gap-2"><Github className="size-4"/><h2 className="font-black">3. GitHub</h2></div><RepoCloner onSelect={r=>{setRepo(r);setStatus("تم اختيار "+r.full_name);}}/>{repo&&<p className="mt-3 rounded-xl bg-emerald-50 p-3 text-xs text-emerald-700">المشروع المحدد: {repo.full_name}</p>}</div><div className="rounded-2xl border bg-white p-4 dark:border-slate-800 dark:bg-slate-900"><h2 className="mb-3 font-black">4. معاينة حيّة</h2><WebAppViewer document={{title:template.name,html:preview,css:"body{margin:0}",javascript:""}}/></div></div></section>
+  <section className="rounded-2xl border bg-white p-4 dark:border-slate-800 dark:bg-slate-900"><h2 className="mb-3 font-black">5. المحرر العام</h2><UniversalCodeEditor value={code} onChange={setCode} language="xml"/></section>
+ </div>;
 }
