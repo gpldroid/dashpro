@@ -32,7 +32,9 @@ export type GithubBranch = {
   protected: boolean;
 };
 
-export type GithubCommit = { sha: string; message: string; author: string; date: string | null; url: string };\n\nexport type GithubPullRequest = { number: number; title: string; state: string; draft: boolean | null; head: string; base: string; user: string; url: string; updated_at: string };\n\nexport type GithubCommitResult = {
+export type GithubCommit = { sha: string; message: string; author: string; date: string | null; url: string };
+
+export type GithubPullRequest = { number: number; title: string; state: string; draft: boolean | null; head: string; base: string; user: string; url: string; updated_at: string };\n\nexport type GithubCommitResult = {
   commit: string;
   branch: string;
   url: string;
@@ -91,6 +93,18 @@ export const githubService = {
 
   compare(session: Session | null, owner: string, repo: string, base: string, head: string) {
     return callGithub<Record<string, unknown>>(session, { action: "compare", owner, repo, base, head });
+  },
+
+  listCommits(session: Session | null, owner: string, repo: string, ref?: string) {
+    return callGithub<GithubCommit[]>(session, { action: "list_commits", owner, repo, ref });
+  },
+
+  listPullRequests(session: Session | null, owner: string, repo: string) {
+    return callGithub<GithubPullRequest[]>(session, { action: "list_pull_requests", owner, repo });
+  },
+
+  createPullRequest(session: Session | null, owner: string, repo: string, title: string, head: string, base: string, body: string, draft = false) {
+    return callGithub<GithubPullRequest>(session, { action: "create_pull_request", owner, repo, title, head, base, body, draft });
   },
 
   commit(
