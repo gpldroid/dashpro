@@ -16,6 +16,7 @@ import {
   insertBloggerSnippet,
   parseBloggerXml,
 } from "@/utils/bloggerParser";
+import { exportBloggerXML } from "@/utils/exportUtils";
 
 interface BloggerEditorProps {
   projectId: string;
@@ -41,6 +42,7 @@ export function BloggerEditor({
     "preview" | "layout" | "style" | "snippets"
   >("preview");
   const [previewCss, setPreviewCss] = useState("");
+  const [exportError, setExportError] = useState("");
 
   const save = useCallback(
     async (source = code) => {
@@ -168,21 +170,14 @@ export function BloggerEditor({
   );
 
   const download = useCallback(() => {
+    setExportError("");
     try {
-      const xml = generateBloggerXml(code);
-      const blob = new Blob([xml], {
-        type: "application/xml;charset=utf-8",
-      });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = "template.xml";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      exportBloggerXML(code);
     } catch (error) {
-      console.error("DashPro XML generation failed:", error);
+      console.error("DashPro XML export failed:", error);
+      setExportError(
+        error instanceof Error ? error.message : "تعذر تصدير قالب Blogger.",
+      );
     }
   }, [code]);
 
@@ -216,6 +211,15 @@ export function BloggerEditor({
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl">
+        {exportError ? (
+          <div
+            role="alert"
+            className="border-b border-rose-900 bg-rose-950/60 px-4 py-2 text-xs text-rose-200"
+          >
+            {exportError}
+          </div>
+        ) : null}
+
         <EditorToolbar
           saveState={saveState}
           onSave={() => void save()}
