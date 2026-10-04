@@ -47,7 +47,7 @@ export function AuthCard() {
         if (authError) throw authError;
 
         if (data.session) {
-          window.location.assign("/dashboard");
+          router.push("/dashboard");
         } else {
           setMessage("تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيد التسجيل.");
         }
