@@ -164,12 +164,12 @@ function parseSkin(skinElement: Element): BloggerSkin {
   const groups: BloggerSkinGroup[] = [];
 
   const read = (raw: string, key: string): string | null => {
-    const match = new RegExp(`\\\\b${key}\\\\s*=\\\\s*["']([^"']*)["']`, "i").exec(raw);
+    const match = new RegExp(`\\b${key}\\s*=\\s*["']([^"']*)["']`, "i").exec(raw);
     return match?.[1] ?? null;
   };
 
-  const variableRegex = /<Variable\\s+([^>]+?)\\s*\\/?>(?:<\\/Variable>)?/gi;
-  const groupRegex = /<Group\\s+([^>]+)>([\\s\\S]*?)<\\/Group>/gi;
+  const variableRegex = /<Variable\s+([^>]+?)\s*\/?>(?:<\/Variable>)?/gi;
+  const groupRegex = /<Group\s+([^>]+)>([\s\S]*?)<\/Group>/gi;
 
   for (const match of rawCss.matchAll(variableRegex)) {
     const raw = match[1];
@@ -221,7 +221,7 @@ export function validateBloggerXml(source: string): BloggerDiagnostic[] {
     diagnostics.push(
       makeDiagnostic(
         source,
-        parserError.textContent?.replace(/\\s+/g, " ").trim() || "تعذر تحليل XML.",
+        parserError.textContent?.replace(/\s+/g, " ").trim() || "تعذر تحليل XML.",
         "XML_PARSE_ERROR",
         "error",
       ),
@@ -299,7 +299,7 @@ export function validateBloggerXml(source: string): BloggerDiagnostic[] {
     }
   }
 
-  if (!/<b:skin\\b[^>]*>[\\s\\S]*?<\\/b:skin>/i.test(source)) {
+  if (!/<b:skin\b[^>]*>[\s\S]*?<\/b:skin>/i.test(source)) {
     diagnostics.push(
       makeDiagnostic(
         source,
@@ -408,12 +408,12 @@ export function generateBloggerXml(source: string): string {
   }
 
   const serialized = new XMLSerializer().serializeToString(document);
-  return `<?xml version="1.0" encoding="UTF-8"?>\\n${serialized}`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n${serialized}`;
 }
 
 export function formatBloggerXml(source: string): string {
   const generated = generateBloggerXml(source);
-  const tokens = generated.replace(/>\\s*</g, "><").split(/(<[^>]+>)/g).filter(Boolean);
+  const tokens = generated.replace(/>\s*</g, "><").split(/(<[^>]+>)/g).filter(Boolean);
   let depth = 0;
 
   return tokens
@@ -446,6 +446,6 @@ export function insertBloggerSnippet(source: string, snippet: "widget" | "post-i
   const insertion = snippets[snippet];
   const closingSection = source.lastIndexOf("</b:section>");
   return closingSection >= 0 && snippet === "widget"
-    ? `${source.slice(0, closingSection)}  ${insertion}\\n${source.slice(closingSection)}`
-    : `${source.trimEnd()}\\n${insertion}\\n`;
+    ? `${source.slice(0, closingSection)}  ${insertion}\n${source.slice(closingSection)}`
+    : `${source.trimEnd()}\n${insertion}\n`;
 }
