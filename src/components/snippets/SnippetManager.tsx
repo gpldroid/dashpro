@@ -337,7 +337,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                   : "rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 dark:border-slate-800 dark:text-slate-300"
               }
             >
-              {tr(item.label, item.label === "الكل" ? "All" : item.label === "عام" ? "General" : item.label)}
+              {tr(item.ar, item.en)}
             </button>
           ))}
         </div>
