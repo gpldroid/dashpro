@@ -35,10 +35,13 @@ export default function DashboardPage() {
     () => ({ title: template.name, html: bloggerPreview, css: "body{margin:0}", javascript: "" }),
     [template.name, bloggerPreview]
   );
-  const universalPreviewDocument = useMemo(
-    () => ({ title: "Universal editor preview", html: universalCode, css: "", javascript: "" }),
-    [universalCode]
-  );
+  const universalPreviewDocument = useMemo(() => {
+    const body = universalCode.match(/<body\\b[^>]*>([\\s\\S]*?)<\\/body>/i)?.[1] ?? universalCode;
+    const embeddedCss = [...universalCode.matchAll(/<style\\b[^>]*>([\\s\\S]*?)<\\/style>/gi)].map(match => match[1]).join("\\n");
+    const embeddedJs = [...universalCode.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(match => match[1]).join("\\n");
+    const html = body.replace(/<style\\b[^>]*>[\\s\\S]*?<\\/style>/gi, "").replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi, "");
+    return { title: "Universal editor preview", html, css: embeddedCss, javascript: embeddedJs };
+  }, [universalCode]);
 
   const selectTemplate = (next: StarterTemplate) => {
     setTemplate(next);
