@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 
 export type EditorLanguage = "xml" | "html" | "css" | "javascript";
@@ -40,8 +40,10 @@ export function CodeEditor({
 }: CodeEditorProps) {
   const saveRef = useRef(onSave);
   const formatRef = useRef(onFormat);
-  saveRef.current = onSave;
-  formatRef.current = onFormat;
+  useEffect(() => {
+    saveRef.current = onSave;
+    formatRef.current = onFormat;
+  }, [onSave, onFormat]);
 
   const handleMount: OnMount = useCallback((editor, monaco) => {
     monaco.editor.defineTheme("dashpro-dark", {
