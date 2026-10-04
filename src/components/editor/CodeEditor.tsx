@@ -120,13 +120,16 @@ export function CodeEditor({
     onEditorReady?.((text) => {
       const selection = editor.getSelection();
       if (!selection) {
+        const model = editor.getModel();
+        if (!model) return;
         editor.executeEdits("dashpro-snippet", [
           {
-            range: editor.getModel()?.getFullModelRange() ?? selection,
+            range: model.getFullModelRange(),
             text,
             forceMoveMarkers: true,
           },
         ]);
+        editor.focus();
         return;
       }
       editor.executeEdits("dashpro-snippet", [
