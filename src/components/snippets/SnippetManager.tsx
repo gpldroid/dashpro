@@ -29,16 +29,13 @@ interface SnippetManagerProps {
   onInsert?: (code: string) => void;
 }
 
-const categories: Array<{
-  value: SnippetCategory | "all";
-  label: string;
-}> = [
-  { value: "all", label: "الكل" },
-  { value: "CSS", label: "CSS" },
-  { value: "JavaScript", label: "JavaScript" },
-  { value: "Blogger Widgets", label: "Blogger Widgets" },
-  { value: "HTML", label: "HTML" },
-  { value: "general", label: "عام" },
+const categories: Array<{ value: SnippetCategory | "all"; ar: string; en: string }> = [
+  { value: "all", ar: "الكل", en: "All" },
+  { value: "CSS", ar: "CSS", en: "CSS" },
+  { value: "JavaScript", ar: "JavaScript", en: "JavaScript" },
+  { value: "Blogger Widgets", ar: "عناصر Blogger", en: "Blogger Widgets" },
+  { value: "HTML", ar: "HTML", en: "HTML" },
+  { value: "general", ar: "عام", en: "General" },
 ];
 
 function normalizeCategory(category: string | null): SnippetCategory {
@@ -282,7 +279,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                   .filter((item) => item.value !== "all")
                   .map((item) => (
                     <option key={item.value} value={item.value}>
-                      {tr(item.label, item.label === "الكل" ? "All" : item.label === "عام" ? "General" : item.label)}
+                      {tr(item.ar, item.en)}
                     </option>
                   ))}
               </select>
