@@ -22,6 +22,7 @@ export function GithubWorkspace() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [diff, setDiff] = useState("");
 
   const loadRepos = useCallback(async () => {
     setLoading(true);
@@ -89,6 +90,21 @@ export function GithubWorkspace() {
     }
   }, [session, selectedRepo, selectedPath, code, originalCode, branch, commitMessage]);
 
+  const compareBranches = useCallback(async () => {
+    if (!selectedRepo || !branch || branch === selectedRepo.default_branch) return;
+    setLoading(true);
+    setError("");
+    try {
+      const [owner, repo] = selectedRepo.full_name.split("/");
+      const result = await githubService.compare(session, owner, repo, selectedRepo.default_branch, branch);
+      setDiff(String((result as { patch?: string }).patch ?? JSON.stringify(result, null, 2)));
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
+  }, [session, selectedRepo, branch]);
+
   const filteredTree = useMemo(
     () => tree.filter((item) => item.path.toLowerCase().includes(search.toLowerCase())),
     [tree, search]
@@ -140,6 +156,7 @@ export function GithubWorkspace() {
                 <input value={branch} onChange={(e) => setBranch(e.target.value)} placeholder="main" className="w-28 bg-transparent text-sm outline-none" />
               </div>
               <button type="button" onClick={loadTree} disabled={!selectedRepo || loading} className="rounded-lg border px-3 py-2 text-sm font-bold hover:bg-slate-50 disabled:opacity-50">شجرة الملفات</button>
+              <button type="button" onClick={compareBranches} disabled={!selectedRepo || !branch || branch === selectedRepo?.default_branch || loading} className="rounded-lg border px-3 py-2 text-sm font-bold hover:bg-slate-50 disabled:opacity-50">Diff</button>
               <div className="relative ms-auto">
                 <Search className="absolute start-2 top-2.5 size-4 text-slate-400" />
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في الملفات" className="w-48 rounded-lg border py-2 pe-3 ps-8 text-sm" />
@@ -161,7 +178,7 @@ export function GithubWorkspace() {
                     Commit & Push
                   </button>
                 </div>
-                {selectedPath ? (
+                {diff ? <pre className="max-h-[560px] overflow-auto whitespace-pre-wrap bg-slate-950 p-4 text-xs leading-6 text-slate-200" dir="ltr">{diff}</pre> : selectedPath ? (
                   <CodeEditor value={code} onChange={setCode} language={selectedPath.endsWith(".css") ? "css" : selectedPath.endsWith(".js") || selectedPath.endsWith(".ts") ? "javascript" : "xml"} height="560px" />
                 ) : (
                   <div className="flex h-[560px] items-center justify-center text-sm text-slate-500">اختر ملفاً لبدء التحرير.</div>
