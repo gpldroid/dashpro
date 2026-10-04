@@ -97,7 +97,7 @@ export function GithubIdeWorkspace(){
   const entries=useMemo(()=>{
     const m=new Map(tree.map(x=>[x.path,x]));
     Object.values(files).forEach(f=>{if(f.status==="deleted")m.delete(f.path);else m.set(f.path,{path:f.path,type:"blob",sha:f.sha,size:f.content.length})});
-    return Array.from(m.values()).filter(x=>x.path.toLowerCase().includes(search.toLowerCase()));
+    return Array.from(m.values()).map(x=>({...x,mode:x.mode??"100644",sha:x.sha??""})).filter(x=>x.path.toLowerCase().includes(search.toLowerCase()));
   },[tree,files,search]);
 
   const update=(path:string,content:string)=>{setFiles(x=>x[path]?({...x,[path]:{...x[path],content,status:x[path].status==="added"?"added":"modified"}}):x);setTabs(x=>x.map(t=>t.path===path?{...t,content,status:t.status==="added"?"added":"modified"}:t))};
