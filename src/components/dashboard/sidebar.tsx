@@ -43,10 +43,10 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
 
   return (
     <aside
-      className={`dashboard-sidebar sticky top-0 hidden h-dvh max-h-dvh shrink-0 flex-col overflow-x-hidden overflow-y-auto border-e border-slate-200 bg-white/95 px-3 py-5 backdrop-blur-md transition-[width] duration-200 dark:border-slate-800 dark:bg-slate-900/90 lg:flex ${collapsed ? "w-[76px]" : "w-[252px] xl:w-[272px]"}`}
+      className={`dashboard-sidebar sticky top-0 hidden h-dvh shrink-0 flex-col border-e border-[var(--app-border)] bg-[var(--app-panel)] transition-[width] duration-200 lg:flex ${collapsed ? "w-[72px]" : "w-[248px] xl:w-[264px]"}`}
       aria-label={t("navigation")}
     >
-      <div className={`mb-8 flex min-h-11 items-center ${collapsed ? "justify-center" : "justify-between gap-2 px-2"}`}>
+      <div className={`flex min-h-16 shrink-0 items-center border-b border-[var(--app-border)] ${collapsed ? "justify-center px-2" : "justify-between gap-2 px-4"}`}>
         <Link
           href="/dashboard"
           title="DashPro"
@@ -68,12 +68,12 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       </div>
 
       {!collapsed && (
-        <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+        <p className="px-4 pb-2 pt-5 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--app-muted)]">
           {t("workspace")}
         </p>
       )}
 
-      <nav className="flex flex-col gap-1.5" aria-label={t("navigation")}>
+      <nav className="dashboard-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 py-2" aria-label={t("navigation")}>
         {navigation.map(({ href, key, icon: Icon }) => {
           const active = href === "/dashboard"
             ? pathname === href
@@ -97,7 +97,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto pt-8">
+      <div className="shrink-0 border-t border-[var(--app-border)] p-3">
         {!collapsed ? (
           <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-700/70 dark:bg-slate-800/70">
             <p className="text-sm font-bold text-slate-800 dark:text-white">{t("creativeSpace")}</p>
