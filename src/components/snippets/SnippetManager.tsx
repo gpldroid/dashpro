@@ -16,6 +16,7 @@ import {
 
 import { createClient } from "@/lib/supabase/client";
 import type { SnippetRow } from "@/types/database";
+import { useLanguage } from "@/contexts/language-context";
 
 export type SnippetCategory =
   | "CSS"
@@ -53,6 +54,7 @@ function normalizeCategory(category: string | null): SnippetCategory {
 }
 
 export function SnippetManager({ onInsert }: SnippetManagerProps) {
+  const { tr, language } = useLanguage();
   const [snippets, setSnippets] = useState<SnippetRow[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<SnippetCategory | "all">("all");
@@ -81,7 +83,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       setSnippets((data ?? []) as SnippetRow[]);
     } catch (cause) {
       console.error("DashPro snippets load failed:", cause);
-      setError("تعذر تحميل مكتبة الأكواد. حاول مرة أخرى.");
+      setError(tr("تعذر تحميل مكتبة الأكواد. حاول مرة أخرى.","Unable to load snippets. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -124,7 +126,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
   async function addSnippet(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.title.trim() || !form.code.trim()) {
-      setError("اكتب اسم الشفرة ومحتواها قبل الحفظ.");
+      setError(tr("اكتب اسم الشفرة ومحتواها قبل الحفظ.","Enter a snippet name and its code before saving."));
       return;
     }
 
@@ -135,7 +137,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       const { data: userData, error: userError } =
         await supabase.auth.getUser();
       if (userError) throw userError;
-      if (!userData.user) throw new Error("يجب تسجيل الدخول لإضافة شفرة.");
+      if (!userData.user) throw new Error(tr("يجب تسجيل الدخول لإضافة شفرة.","Sign in to add a snippet."));
 
       const { error: insertError } = await supabase.from("snippets").insert({
         user_id: userData.user.id,
@@ -156,14 +158,14 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       await loadSnippets();
     } catch (cause) {
       console.error("DashPro snippet create failed:", cause);
-      setError("تعذر حفظ الشفرة. تأكد من صلاحيات حسابك.");
+      setError(tr("تعذر حفظ الشفرة. تأكد من صلاحيات حسابك.","Unable to save snippet. Check your account permissions."));
     } finally {
       setSaving(false);
     }
   }
 
   async function removeSnippet(id: string) {
-    if (!window.confirm("هل تريد حذف هذه الشفرة؟")) return;
+    if (!window.confirm(tr("هل تريد حذف هذه الشفرة؟","Delete this snippet?"))) return;
     setError("");
     try {
       const supabase = createClient();
@@ -177,7 +179,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       );
     } catch (cause) {
       console.error("DashPro snippet delete failed:", cause);
-      setError("تعذر حذف الشفرة.");
+      setError(tr("تعذر حذف الشفرة.","Unable to delete snippet."));
     }
   }
 
@@ -198,7 +200,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       );
     } catch (cause) {
       console.error("DashPro snippet favorite update failed:", cause);
-      setError("تعذر تحديث المفضلة.");
+      setError(tr("تعذر تحديث المفضلة.","Unable to update favorites."));
     }
   }
 
@@ -209,12 +211,12 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       window.setTimeout(() => setCopiedId(null), 1500);
     } catch (cause) {
       console.error("DashPro clipboard copy failed:", cause);
-      setError("تعذر نسخ الشفرة. تحقق من صلاحية الحافظة في المتصفح.");
+      setError(tr("تعذر نسخ الشفرة. تحقق من صلاحية الحافظة في المتصفح.","Unable to copy. Check clipboard permissions in your browser."));
     }
   }
 
   return (
-    <section dir="rtl" className="space-y-5">
+    <section dir={language === "ar" ? "rtl" : "ltr"} className="min-w-0 space-y-5">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white">
@@ -230,7 +232,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700"
         >
           {showForm ? <X className="size-4" /> : <FilePlus2 className="size-4" />}
-          {showForm ? "إلغاء" : "شفرة جديدة"}
+          {showForm ? tr("إلغاء","Cancel") : tr("شفرة جديدة","New snippet")}
         </button>
       </div>
 
@@ -259,7 +261,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                   setForm({ ...form, title: event.target.value })
                 }
                 className="w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-slate-700"
-                placeholder="زر تحميل جذاب"
+                placeholder={tr("زر تحميل جذاب","Animated download button")}
               />
             </label>
             <label className="space-y-2">
@@ -280,7 +282,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                   .filter((item) => item.value !== "all")
                   .map((item) => (
                     <option key={item.value} value={item.value}>
-                      {item.label}
+                      {tr(item.label, item.label === "الكل" ? "All" : item.label === "عام" ? "General" : item.label)}
                     </option>
                   ))}
               </select>
@@ -323,7 +325,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none"
-            placeholder="ابحث في المكتبة..."
+            placeholder={tr("ابحث في المكتبة...","Search snippets...")}
           />
         </label>
         <div className="flex flex-wrap gap-2">
@@ -375,7 +377,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                 <button
                   type="button"
                   onClick={() => void toggleFavorite(snippet)}
-                  aria-label="تبديل المفضلة"
+                  aria-label={tr("تبديل المفضلة","Toggle favorite")}
                   className="rounded-lg p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10"
                 >
                   <Star
@@ -404,7 +406,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                   ) : (
                     <Clipboard className="size-3.5" />
                   )}
-                  {copiedId === snippet.id ? "تم النسخ" : "نسخ"}
+                  {copiedId === snippet.id ? tr("تم النسخ","Copied") : tr("نسخ","Copy")}
                 </button>
                 {onInsert ? (
                   <button
@@ -412,14 +414,14 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
                     onClick={() => onInsert(snippet.code)}
                     className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white"
                   >
-                    <Code2 className="size-3.5" /> إدراج في المحرر
+                    <Code2 className="size-3.5" /> {tr("إدراج في المحرر","Insert into editor")}
                   </button>
                 ) : null}
                 <button
                   type="button"
                   onClick={() => void removeSnippet(snippet.id)}
                   className="ms-auto inline-flex items-center gap-2 rounded-lg p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10"
-                  aria-label="حذف الشفرة"
+                  aria-label={tr("حذف الشفرة","Delete snippet")}
                 >
                   <Trash2 className="size-4" />
                 </button>
