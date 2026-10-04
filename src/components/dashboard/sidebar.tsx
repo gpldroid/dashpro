@@ -6,6 +6,7 @@ import {
   Blocks,
   Code2,
   FolderKanban,
+  Github,
   LayoutDashboard,
   Puzzle,
   Settings2
@@ -15,6 +16,7 @@ const navigation = [
   { href: "/dashboard", label: "نظرة عامة", icon: LayoutDashboard },
   { href: "/dashboard/projects", label: "المشاريع", icon: FolderKanban },
   { href: "/dashboard/editor", label: "محرر القوالب", icon: Code2 },
+  { href: "/dashboard/github", label: "GitHub Workspace", icon: Github },
   { href: "/dashboard/snippets", label: "مكتبة الأكواد", icon: Blocks },
   { href: "/dashboard/components", label: "المكونات", icon: Puzzle },
   { href: "/dashboard/settings", label: "الإعدادات", icon: Settings2 }
