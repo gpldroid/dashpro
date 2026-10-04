@@ -220,10 +220,10 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-            مكتبة الأكواد
+            {tr("مكتبة الأكواد","Code snippets")}
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            احفظ شفراتك المتكررة واستعملها من جديد داخل المحرر.
+            {tr("احفظ شفراتك المتكررة واستعملها من جديد داخل المحرر.","Save reusable code and insert it into the editor whenever needed.")}
           </p>
         </div>
         <button
@@ -253,7 +253,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
               <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-                اسم الشفرة
+                {tr("اسم الشفرة","Snippet name")}
               </span>
               <input
                 value={form.title}
@@ -266,7 +266,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
             </label>
             <label className="space-y-2">
               <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-                الفئة
+                {tr("الفئة","Category")}
               </span>
               <select
                 value={form.category}
@@ -290,7 +290,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
           </div>
           <label className="block space-y-2">
             <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-              الشفرة
+              {tr("الشفرة","Code")}
             </span>
             <textarea
               value={form.code}
@@ -313,7 +313,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
             ) : (
               <Check className="size-4" />
             )}
-            حفظ الشفرة
+            {tr("حفظ الشفرة","Save snippet")}
           </button>
         </form>
       ) : null}
@@ -354,7 +354,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
         <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
           <Code2 className="mx-auto size-8 text-slate-400" />
           <p className="mt-3 text-sm font-bold text-slate-700 dark:text-slate-200">
-            لا توجد شفرات مطابقة.
+            {tr("لا توجد شفرات مطابقة.","No matching snippets.")}
           </p>
         </div>
       ) : (
