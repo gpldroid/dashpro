@@ -65,6 +65,7 @@ body {
   min-height: 100dvh;
   margin: 0;
   overflow-x: clip;
+  transition: background-color 160ms ease, color 160ms ease;
   background:
     radial-gradient(ellipse at 85% 0%, rgb(99 102 241 / 5%), transparent 34rem),
     var(--app-bg);
@@ -118,7 +119,7 @@ pre {
 
 #__next,
 main,
-[ data-dashboard-root ] {
+[data-dashboard-root] {
   min-width: 0;
 }
 
@@ -212,3 +213,9 @@ main,
     transition-duration: 0.01ms !important;
   }
 }
+
+
+.dashboard-app { isolation: isolate; }
+.dashboard-app *, .dashboard-app *::before, .dashboard-app *::after { min-width: 0; }
+.dashboard-content { min-width: 0; max-width: 100%; }
+@media (max-width: 1023px) { .dashboard-sidebar { display: none; } }
