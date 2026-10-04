@@ -31,7 +31,7 @@ export default async function ProjectEditorPage({
 
   const initialCode =
     project.code_content ??
-    '<?xml version="1.0" encoding="UTF-8"?>
+    `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns:b="http://www.google.com/2005/gml/b" xmlns:m="http://www.google.com/2005/gml/m">
   <head>
     <b:skin><![CDATA[/* DashPro Blogger CSS */]]></b:skin>
@@ -39,7 +39,7 @@ export default async function ProjectEditorPage({
   <body>
     <b:section id="main" class="main" showaddelement="yes"></b:section>
   </body>
-</html>';
+</html>`;
 
   return (
     <DashboardLayout>
