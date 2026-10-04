@@ -66,7 +66,9 @@ export function BloggerEditor({
     [code, projectId],
   );
 
-  saveRef.current = save;
+  useEffect(() => {
+    saveRef.current = save;
+  }, [save]);
 
   const scheduleSave = useCallback(() => {
     if (saveTimerRef.current) {
