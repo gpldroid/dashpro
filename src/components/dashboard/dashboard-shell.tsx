@@ -45,7 +45,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     <div
       data-dashboard-root
       dir={language === "ar" ? "rtl" : "ltr"}
-      className="flex min-h-dvh w-full min-w-0 bg-slate-50 text-slate-900 dark:bg-[#090d18] dark:text-slate-100"
+      className="dashboard-app flex min-h-dvh w-full min-w-0 bg-[var(--app-bg)] text-[var(--app-fg)]"
     >
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -76,7 +76,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <nav
               id="dashboard-mobile-navigation"
               aria-label={t("navigation")}
-              className="grid grid-cols-2 gap-2 border-t border-slate-100 px-3 py-3 dark:border-slate-800 sm:grid-cols-3 sm:px-4"
+              className="grid grid-cols-1 gap-2 border-t border-[var(--app-border)] p-3 sm:grid-cols-2 sm:p-4"
             >
               {mobileLinks.map(item => {
                 const active = item.href === "/dashboard"
@@ -136,8 +136,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <main className="min-w-0 flex-1 overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 xl:px-8 xl:py-8">
-          <div className="mx-auto w-full min-w-0 max-w-[1720px]">
+        <main className="min-w-0 flex-1 overflow-x-hidden px-3 py-4 sm:px-5 sm:py-6 xl:px-8 xl:py-7">
+          <div className="mx-auto w-full min-w-0 max-w-[1680px]">
             {children}
           </div>
         </main>
