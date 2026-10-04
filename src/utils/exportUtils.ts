@@ -83,8 +83,11 @@ export function exportStaticSiteZip(files: StaticSiteFiles): void {
     }
 
     const archive = zipSync(entries, { level: 6 });
+    const archiveBuffer = new ArrayBuffer(archive.byteLength);
+    new Uint8Array(archiveBuffer).set(archive);
+
     downloadBlob(
-      new Blob([archive], { type: "application/zip" }),
+      new Blob([archiveBuffer], { type: "application/zip" }),
       "dashpro-static-site.zip",
     );
   } catch (error) {
