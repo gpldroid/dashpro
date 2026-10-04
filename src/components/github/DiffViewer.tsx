@@ -1,7 +1,7 @@
 "use client";
 
 import { Diff } from "lucide-react";
-import Editor from "@monaco-editor/react";
+import { DiffEditor } from "@monaco-editor/react";
 
 export function DiffViewer({ before, after, language = "plaintext" }: { before: string; after: string; language?: string }) {
   return (
@@ -9,7 +9,7 @@ export function DiffViewer({ before, after, language = "plaintext" }: { before: 
       <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2 text-xs text-slate-400">
         <Diff className="size-4" /> مقارنة حقيقية
       </div>
-      <Editor
+      <DiffEditor
         height="560px"
         theme="dashpro-dark"
         language={language}
