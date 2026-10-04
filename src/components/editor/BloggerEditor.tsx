@@ -19,72 +19,90 @@ interface BloggerEditorProps {
   initialCode: string;
 }
 
-export function BloggerEditor({ projectId, projectTitle, initialCode }: BloggerEditorProps) {
+export function BloggerEditor({
+  projectId,
+  projectTitle,
+  initialCode,
+}: BloggerEditorProps) {
   const [code, setCode] = useState(initialCode);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [cursor, setCursor] = useState({ line: 1, column: 1 });
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveRef = useRef<() => Promise<void>>(async () => undefined);
 
-  const analysis = useMemo(
-    () => (code.trim() ? parseBloggerXml(code) : null),
-    [code],
-  );
+  const analysis = useMemo(() => parseBloggerXml(code), [code]);
+  const diagnostics = analysis.diagnostics;
 
   const save = useCallback(async () => {
     setSaveState("saving");
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("projects")
-      .update({ code_content: code })
-      .eq("id", projectId);
 
-    if (error) {
-      setSaveState("unsaved");
+    try {
+      const supabase = createClient();
+      const xml = generateBloggerXml(code);
+      const { error } = await supabase
+        .from("projects")
+        .update({ code_content: xml })
+        .eq("id", projectId);
+
+      if (error) {
+        console.error("DashPro project save failed:", error);
+        setSaveState("unsaved");
+        return;
+      }
+
+      setSaveState("saved");
+    } catch (error) {
       console.error("DashPro project save failed:", error);
-      return;
+      setSaveState("unsaved");
     }
-
-    setSaveState("saved");
   }, [code, projectId]);
 
-  const changeCode = useCallback(
+  saveRef.current = save;
+
+  const scheduleSave = useCallback(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      void saveRef.current();
+    }, 1200);
+  }, []);
+
+  const updateCode = useCallback(
     (nextCode: string) => {
       setCode(nextCode);
       setSaveState("unsaved");
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        void save();
-      }, 1200);
+      scheduleSave();
     },
-    [save],
-  );
-
-  useEffect(
-    () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    },
-    [],
+    [scheduleSave],
   );
 
   const format = useCallback(() => {
     try {
-      setCode(formatBloggerXml(code));
+      const formatted = formatBloggerXml(code);
+      setCode(formatted);
       setSaveState("unsaved");
+      scheduleSave();
     } catch (error) {
       console.error("DashPro XML format failed:", error);
     }
-  }, [code]);
+  }, [code, scheduleSave]);
 
-  const insert = useCallback((snippet: "widget" | "post-if" | "home-if") => {
-    setCode((current) => insertBloggerSnippet(current, snippet));
-    setSaveState("unsaved");
-  }, []);
+  const insert = useCallback(
+    (snippet: "widget" | "post-if" | "home-if") => {
+      const nextCode = insertBloggerSnippet(code, snippet);
+      updateCode(nextCode);
+    },
+    [code, updateCode],
+  );
 
   const download = useCallback(() => {
     try {
       const xml = generateBloggerXml(code);
-      const blob = new Blob([xml], { type: "application/xml;charset=utf-8" });
+      const blob = new Blob([xml], {
+        type: "application/xml;charset=utf-8",
+      });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -98,24 +116,33 @@ export function BloggerEditor({ projectId, projectTitle, initialCode }: BloggerE
     }
   }, [code]);
 
-  const diagnostics = analysis?.diagnostics ?? [];
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-medium text-slate-400">Blogger XML Editor</p>
-          <h1 className="mt-1 text-xl font-black text-slate-900 dark:text-white">{projectTitle}</h1>
+          <p className="text-xs font-medium text-slate-400">
+            Blogger XML Editor
+          </p>
+          <h1 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
+            {projectTitle}
+          </h1>
         </div>
-        {analysis && (
-          <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span>{analysis.sections.length} أقسام</span>
-            <span>{analysis.widgets.length} ويدجت</span>
-            <span>{analysis.conditionals} شرطيات</span>
-            <span>{analysis.loops} حلقات</span>
-            <span>{analysis.dataTags.length} data tags</span>
-          </div>
-        )}
+
+        <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span>{analysis.sections.length} أقسام</span>
+          <span>{analysis.widgets.length} ويدجت</span>
+          <span>{analysis.conditionals} شرطيات</span>
+          <span>{analysis.loops} حلقات</span>
+          <span>{analysis.dataTags.length} data tags</span>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl">
@@ -126,14 +153,16 @@ export function BloggerEditor({ projectId, projectTitle, initialCode }: BloggerE
           onInsert={insert}
           onDownload={download}
         />
+
         <CodeEditor
           value={code}
           language="xml"
-          onChange={changeCode}
+          onChange={updateCode}
           onSave={() => void save()}
           onFormat={format}
           onCursorChange={(line, column) => setCursor({ line, column })}
         />
+
         <EditorStatusBar
           line={cursor.line}
           column={cursor.column}
