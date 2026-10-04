@@ -93,8 +93,6 @@ export function BloggerEditor({
       if (!tag.includes('name="' + name + '"') && !tag.includes("name='" + name + "'")) return tag;
       return tag.replace(/((?:value|default)=["'])[^"']*(["'])/i, "$1" + value + "$2");
     });
-    const pattern = new RegExp("(<Variable\\\\b[^>]*\\\\bname=[\\\"']" + escaped + "[\\\"'][^>]*?(?:value|default)=[\\\"'])([^\\\"']*)([\\\"'])", "i");
-    const next = code.replace(pattern, "$1" + value + "$3");
     if (next !== code) updateCode(next);
     if (/font/i.test(name)) setPreviewCss("body{font-family:" + value + ",sans-serif}");
     else setPreviewCss("--" + name + ":" + value + ";");
