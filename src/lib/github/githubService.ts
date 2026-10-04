@@ -32,7 +32,7 @@ export type GithubBranch = {
   protected: boolean;
 };
 
-export type GithubCommitResult = {
+export type GithubCommit = { sha: string; message: string; author: string; date: string | null; url: string };\n\nexport type GithubPullRequest = { number: number; title: string; state: string; draft: boolean | null; head: string; base: string; user: string; url: string; updated_at: string };\n\nexport type GithubCommitResult = {
   commit: string;
   branch: string;
   url: string;
