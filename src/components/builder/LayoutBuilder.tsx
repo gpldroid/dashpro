@@ -62,7 +62,7 @@ function LibraryItem({ item }: { item: (typeof LIBRARY)[number] }) {
   );
 }
 
-function SectionDropZone({ section }: { section: BloggerSection }) {
+function SectionDropZone({ section, onAddComponent }: { section: BloggerSection; onAddComponent: Props["onAddComponent"] }) {
   const droppable = useDroppable({ id: `section:${section.id ?? "unknown"}` });
 
   return (
@@ -135,7 +135,7 @@ export function LayoutBuilder({ sections, onReorder, onAddComponent }: Props) {
             <h2 className="font-black">باني التخطيط</h2>
           </div>
 
-          {sections.map((section) => <SectionDropZone key={section.id} section={section} />)}
+          {sections.map((section) => <SectionDropZone key={section.id} section={section} onAddComponent={onAddComponent} />)}
           {sections.length === 0 ? <p className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-500">لا توجد أقسام قابلة للبناء.</p> : null}
         </div>
 
