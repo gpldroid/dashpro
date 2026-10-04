@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, FolderKanban, Plus, Sparkles } from "lucide-react";
 
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectsList } from "@/components/dashboard/ProjectsList";
 import { createClient } from "@/lib/supabase/server";
 import type { ProjectRow } from "@/types/database";
 
@@ -49,21 +49,8 @@ export default async function DashboardPage() {
           <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">
             تعذر تحميل المشاريع. تأكد من تشغيل سياسات قاعدة البيانات للجدول.
           </div>
-        ) : projectList.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {projectList.map((project) => <ProjectCard key={project.id} project={project} />)}
-          </div>
         ) : (
-          <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center dark:border-slate-700 dark:bg-slate-900">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">
-              <FolderKanban className="size-6" />
-            </div>
-            <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">لا توجد مشاريع بعد</h3>
-            <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500 dark:text-slate-400">ابدأ بإنشاء أول مشروع Blogger أو موقع ثابت، وستظهر مشاريعك هنا.</p>
-            <Link href="/dashboard/projects/new" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
-              <Plus className="size-4" /> إنشاء أول مشروع
-            </Link>
-          </div>
+          <ProjectsList projects={projectList} />
         )}
       </section>
 
