@@ -1,4 +1,4 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/types/database";
 
@@ -11,8 +11,16 @@ const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_wwG2gkXDuPhuwQ6zot1kew_5HQtvt2E";
 
 export function createClient() {
-  return createBrowserClient<Database>(
+  return createSupabaseClient<Database>(
     SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+      auth: {
+        flowType: "implicit",
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    }
   );
 }
