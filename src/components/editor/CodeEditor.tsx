@@ -1,56 +1,143 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
+import type * as Monaco from "monaco-editor";
+
+export type EditorLanguage = "xml" | "html" | "css" | "javascript";
 
 interface CodeEditorProps {
   value: string;
-  language?: "xml" | "html" | "css" | "javascript";
-  theme?: "vs-dark" | "vs-light" | "dashpro-dark";
+  language?: EditorLanguage;
   onChange: (value: string) => void;
-  onSave?: (value: string) => void;
+  onSave?: () => void;
+  onFormat?: () => void;
   onCursorChange?: (line: number, column: number) => void;
   readOnly?: boolean;
   height?: string;
 }
 
-export function CodeEditor({ value, language = "xml", theme = "dashpro-dark", onChange, onSave, onCursorChange, readOnly = false, height = "calc(100vh - 280px)" }: CodeEditorProps) {
-  const saveRef = useRef(onSave);
-  saveRef.current = onSave;
-  useEffect(() => () => { saveRef.current = undefined; }, []);
+const bloggerCompletionTags = [
+  "b:section",
+  "b:widget",
+  "b:includable",
+  "b:if",
+  "b:loop",
+  "b:skin",
+  "data:blog",
+  "data:post",
+  "data:label",
+];
 
-  const handleMount: OnMount = (editor, monaco) => {
+export function CodeEditor({
+  value,
+  language = "xml",
+  onChange,
+  onSave,
+  onFormat,
+  onCursorChange,
+  readOnly = false,
+  height = "calc(100vh - 280px)",
+}: CodeEditorProps) {
+  const saveRef = useRef(onSave);
+  const formatRef = useRef(onFormat);
+  saveRef.current = onSave;
+  formatRef.current = onFormat;
+
+  const handleMount: OnMount = useCallback((editor, monaco) => {
     monaco.editor.defineTheme("dashpro-dark", {
-      base: "vs-dark", inherit: true,
+      base: "vs-dark",
+      inherit: true,
       rules: [
-        { token: "tag", foreground: "60A5FA" },
-        { token: "attribute.name", foreground: "C4B5FD" },
-        { token: "attribute.value", foreground: "86EFAC" },
-        { token: "string", foreground: "86EFAC" },
-        { token: "comment", foreground: "64748B" }
+        { token: "tag", foreground: "7dd3fc" },
+        { token: "attribute.name", foreground: "c4b5fd" },
+        { token: "attribute.value", foreground: "86efac" },
+        { token: "string", foreground: "86efac" },
+        { token: "comment", foreground: "64748b" },
       ],
       colors: {
-        "editor.background": "#0B1120", "editor.foreground": "#E2E8F0",
-        "editorLineNumber.foreground": "#475569", "editorLineNumber.activeForeground": "#CBD5E1",
-        "editorCursor.foreground": "#A78BFA", "editor.selectionBackground": "#312E81"
-      }
+        "editor.background": "#0b1020",
+        "editor.foreground": "#e2e8f0",
+        "editorLineNumber.foreground": "#475569",
+        "editorLineNumber.activeForeground": "#a5b4fc",
+        "editorCursor.foreground": "#a5b4fc",
+        "editor.selectionBackground": "#3730a366",
+      },
     });
-    editor.addAction({
-      id: "dashpro.save", label: "حفظ القالب",
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
-      run: () => saveRef.current?.(editor.getValue())
-    });
-    editor.onDidChangeCursorPosition(e => onCursorChange?.(e.position.lineNumber, e.position.column));
-  };
 
-  return <Editor height={height} language={language} theme={theme} value={value} onChange={v => onChange(v || "")} onMount={handleMount}
-    options={{
-      automaticLayout: true, minimap: { enabled: true }, lineNumbers: "on", folding: true,
-      tabSize: 2, insertSpaces: true, formatOnPaste: true, formatOnType: true,
-      quickSuggestions: true, suggest: { showKeywords: true, showSnippets: true },
-      bracketPairColorization: { enabled: true }, smoothScrolling: true, scrollBeyondLastLine: false,
-      renderWhitespace: "selection", padding: { top: 12, bottom: 12 }, readOnly
-    }}
-    loading={<div className="flex h-full items-center justify-center bg-slate-950 text-sm text-slate-400">جارٍ تحميل محرر الأكواد...</div>}
-  />;
+    monaco.languages.registerCompletionItemProvider("xml", {
+      triggerCharacters: ["<", ":", " "],
+      provideCompletionItems(model, position) {
+        const range = new monaco.Range(
+          position.lineNumber,
+          position.column,
+          position.lineNumber,
+          position.column,
+        );
+        return {
+          suggestions: bloggerCompletionTags.map((tag) => ({
+            label: tag,
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            insertText: tag,
+            detail: "Blogger",
+            range,
+          })),
+        };
+      },
+    });
+
+    editor.addAction({
+      id: "dashpro-save",
+      label: "حفظ قالب Blogger",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      run: () => saveRef.current?.(),
+    });
+
+    editor.addAction({
+      id: "dashpro-format",
+      label: "تنسيق قالب Blogger",
+      keybindings: [monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
+      run: () => formatRef.current?.(),
+    });
+
+    editor.onDidChangeCursorPosition((event) => {
+      onCursorChange?.(event.position.lineNumber, event.position.column);
+    });
+  }, [onCursorChange]);
+
+  return (
+    <div className="overflow-hidden bg-[#0b1020]">
+      <Editor
+        height={height}
+        language={language}
+        value={value}
+        theme="dashpro-dark"
+        onMount={handleMount}
+        onChange={(next) => onChange(next ?? "")}
+        options={{
+          automaticLayout: true,
+          minimap: { enabled: true },
+          lineNumbers: "on",
+          folding: true,
+          tabSize: 2,
+          insertSpaces: true,
+          formatOnPaste: true,
+          formatOnType: true,
+          quickSuggestions: true,
+          suggestOnTriggerCharacters: true,
+          bracketPairColorization: { enabled: true },
+          smoothScrolling: true,
+          scrollBeyondLastLine: false,
+          renderWhitespace: "selection",
+          padding: { top: 12, bottom: 12 },
+          readOnly,
+        }}
+        loading={
+          <div className="flex h-96 items-center justify-center bg-slate-950 text-sm text-slate-400">
+            جارٍ تحميل محرر الأكواد…
+          </div>
+        }
+      />
+    </div>
+  );
 }
