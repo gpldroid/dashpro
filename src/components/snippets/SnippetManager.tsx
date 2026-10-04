@@ -87,7 +87,7 @@ export function SnippetManager({ onInsert }: SnippetManagerProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tr]);
 
   useEffect(() => {
     void loadSnippets();
