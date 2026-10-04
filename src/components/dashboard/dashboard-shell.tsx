@@ -52,10 +52,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         onToggle={() => setSidebarCollapsed(value => !value)}
       />
 
-      <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
+      <div className="flex min-h-dvh min-w-0 flex-1 flex-col overflow-hidden">
         <DashboardHeader />
 
-        <div className="border-b border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/90 lg:hidden">
+        <div className="relative z-40 border-b border-[var(--app-border)] bg-[var(--app-panel)]/95 backdrop-blur-md lg:hidden">
           <div className="flex min-h-14 items-center justify-between gap-3 px-3 sm:px-4">
             <span className="min-w-0 truncate text-sm font-bold text-slate-700 dark:text-slate-200">
               {t("navigation")}
@@ -103,7 +103,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
         <nav
           aria-label={language === "ar" ? "شريط أدوات مساحة العمل" : "Workspace tools"}
-          className="hidden min-h-14 items-center gap-2 overflow-x-auto border-b border-slate-200/70 bg-white/70 px-5 py-2 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/60 xl:flex xl:px-8"
+          className="dashboard-scrollbar hidden min-h-14 items-center gap-2 overflow-x-auto border-b border-[var(--app-border)] bg-[var(--app-panel)]/80 px-5 py-2 backdrop-blur-md xl:flex xl:px-8"
         >
           <span className="me-2 shrink-0 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             {language === "ar" ? "أدوات سريعة" : "Quick tools"}
@@ -136,7 +136,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <main className="min-w-0 flex-1 overflow-x-hidden px-3 py-4 sm:px-5 sm:py-6 xl:px-8 xl:py-7">
+        <main className="dashboard-main min-w-0 flex-1 overflow-x-hidden px-3 py-4 sm:px-5 sm:py-6 xl:px-8 xl:py-7">
           <div className="mx-auto w-full min-w-0 max-w-[1680px]">
             {children}
           </div>
