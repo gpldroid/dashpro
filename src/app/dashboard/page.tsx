@@ -54,6 +54,35 @@ export default async function DashboardPage() {
         )}
       </section>
 
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-extrabold text-slate-900 dark:text-white">مسار العمل</h2>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">انتقل مباشرة بين مراحل بناء مشروعك.</p>
+          </div>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+            التصدير النهائي متاح من المحرر
+          </span>
+        </div>
+        <nav aria-label="مسار العمل" className="grid gap-2 sm:grid-cols-4">
+          {[
+            ["المشاريع", "/dashboard/projects"],
+            ["محرر الأكواد", "/dashboard/editor"],
+            ["الباني البصري", "/dashboard/editor"],
+            ["مكتبة الأكواد", "/dashboard/snippets"],
+          ].map(([label, href], index) => (
+            <Link
+              key={label}
+              href={href}
+              className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-800 dark:text-slate-200 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/10"
+            >
+              <span className="me-2 text-xs text-indigo-500">{index + 1}</span>
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </section>
+
       <section className="mt-8 grid gap-4 md:grid-cols-3">
         <QuickLink href="/dashboard/editor" title="محرر القوالب" description="ابدأ تعديل XML وHTML." icon="code" />
         <QuickLink href="/dashboard/snippets" title="مكتبة الأكواد" description="احتفظ بالمقاطع التي تستخدمها." icon="snippets" />
