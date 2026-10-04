@@ -120,7 +120,7 @@ export function GithubIdeWorkspace(){
     if(!activeFile)return;const to=renameTo.trim().replace(/^\/+/, "");
     if(!to||to.includes("..")||files[to]||tree.some(x=>x.path===to)){setError("اسم الوجهة غير صالح أو موجود.");return}
     const from=activeFile.path;const moved={...activeFile,path:to,status:activeFile.status==="added"?"added":"modified",staged:false} as FileState;
-    setFiles(x=>({...x,[from]:{...x[from],content:"",status:"deleted",staged:false},[to]:moved}));setTabs(x=>x.map(t=>t.path===from?moved:t));setActive(to);setRenameTo("");setShowRename(false);setStatus("إعادة التسمية جاهزة لـ Stage/Commit.");
+    setFiles(x=>{const n={...x};delete n[from];if(activeFile.status!=="added")n[from]={...activeFile,content:"",status:"deleted",staged:false};n[to]=moved;return n});setTabs(x=>x.map(t=>t.path===from?moved:t));setActive(to);setRenameTo("");setShowRename(false);setStatus("إعادة التسمية جاهزة لـ Stage/Commit.");
   };
 
   const commit=async()=>{
