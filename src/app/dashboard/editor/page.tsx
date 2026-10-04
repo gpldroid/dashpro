@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { BloggerEditor } from "@/components/editor/BloggerEditor";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/contexts/language-context";
 
 const starterXml = `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns:b="http://www.google.com/2005/gml/b" xmlns:m="http://www.google.com/2005/gml/m">
@@ -16,6 +17,7 @@ const starterXml = `<?xml version="1.0" encoding="UTF-8"?>
 </html>`;
 
 export default function DashboardEditorPage() {
+  const { t } = useLanguage();
   const [project, setProject] = useState<{
     id: string;
     title: string;
@@ -40,15 +42,15 @@ export default function DashboardEditorPage() {
   }, []);
 
   if (loading) {
-    return <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">جارٍ فتح المحرر…</div>;
+    return <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">{t("openEditor")}</div>;
   }
 
   if (!project) {
-    return <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center dark:border-slate-700"><p className="text-sm text-slate-500">لا يوجد مشروع Blogger XML بعد.</p></div>;
+    return <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center dark:border-slate-700"><p className="text-sm text-slate-500">{t("noBloggerProject")}</p></div>;
   }
 
   if (project.project_type !== "blogger_xml") {
-    return <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">محرر Blogger XML مخصص لمشاريع القوالب بصيغة Blogger XML.</div>;
+    return <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">{t("bloggerOnly")}</div>;
   }
 
   return (
