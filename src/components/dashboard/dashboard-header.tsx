@@ -59,7 +59,7 @@ export function DashboardHeader() {
   const currentTitle = currentRoute ? t(currentRoute.key) : t("dashboard");
 
   return (
-    <header className="sticky top-0 z-40 flex min-h-16 w-full min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-slate-200/80 bg-white/90 px-3 py-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85 sm:px-5 xl:px-8">
+    <header className="sticky top-0 z-50 flex min-h-16 w-full min-w-0 items-center justify-between gap-3 border-b border-[var(--app-border)] bg-[color-mix(in_srgb,var(--app-panel)_94%,transparent)] px-3 py-2.5 backdrop-blur-xl sm:px-5 xl:px-7">
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 sm:text-[11px]">
           {t("workspace")}
@@ -69,11 +69,11 @@ export function DashboardHeader() {
         </p>
       </div>
 
-      <div className="flex min-w-0 shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+      <div className="flex min-w-0 shrink-0 items-center gap-1.5">
         <span
           role="status"
           title={online ? t("connected") : t("disconnected")}
-          className={`hidden min-h-9 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold sm:inline-flex ${online
+          className={`hidden min-h-9 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold lg:inline-flex ${online
             ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300"
             : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/40 dark:text-rose-300"}`}
         >
