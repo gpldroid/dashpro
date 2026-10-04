@@ -96,7 +96,7 @@ export function GithubIdeWorkspace(){
   const dirtyPaths=useMemo(()=>changed.map(x=>x.path),[changed]);
   const entries=useMemo(()=>{
     const m=new Map(tree.map(x=>[x.path,x]));
-    Object.values(files).forEach(f=>{if(f.status==="deleted")m.delete(f.path);else m.set(f.path,{path:f.path,type:"blob",sha:f.sha,size:f.content.length})});
+    Object.values(files).forEach(f=>{if(f.status==="deleted")m.delete(f.path);else m.set(f.path,{path:f.path,mode:"100644",type:"blob",sha:f.sha??"",size:f.content.length})});
     return Array.from(m.values()).map(x=>({...x,mode:x.mode??"100644",sha:x.sha??""})).filter(x=>x.path.toLowerCase().includes(search.toLowerCase()));
   },[tree,files,search]);
 
