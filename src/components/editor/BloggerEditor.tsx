@@ -225,6 +225,7 @@ export function BloggerEditor({
           onSave={() => void save()}
           onFormat={format}
           onInsert={insert}
+          insertMode="snippet"
           onDownload={download}
         />
 
