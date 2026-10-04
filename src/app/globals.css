@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   color-scheme: light;
@@ -24,7 +25,7 @@ html { min-height: 100%; background: var(--background); scroll-behavior: smooth;
 body {
   min-height: 100vh;
   margin: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Tahoma, sans-serif;
@@ -33,6 +34,20 @@ body {
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 img, video, canvas, iframe { max-width: 100%; }
-pre, code { max-width: 100%; }
+pre, code { max-width: 100%; overflow-wrap: anywhere; }
 #__next, main { min-width: 0; }
 ::selection { background: #c7d2fe; color: #312e81; }
+
+:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
