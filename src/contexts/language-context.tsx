@@ -81,8 +81,23 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.language = language;
     try { window.localStorage.setItem("dashpro-language", language); } catch { /* storage may be unavailable */ }
   }, [language]);
-  const setLanguage = useCallback((next: Language) => setLanguageState(next), []);
-  const toggleLanguage = useCallback(() => setLanguageState(current => current === "ar" ? "en" : "ar"), []);
+  const setLanguage = useCallback((next: Language) => {
+      setLanguageState(next);
+      document.documentElement.lang = next;
+      document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
+      document.documentElement.dataset.language = next;
+      try { window.localStorage.setItem("dashpro-language", next); } catch {}
+    }, []);
+  const toggleLanguage = useCallback(() => {
+      setLanguageState(current => {
+        const next = current === "ar" ? "en" : "ar";
+        document.documentElement.lang = next;
+        document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
+        document.documentElement.dataset.language = next;
+        try { window.localStorage.setItem("dashpro-language", next); } catch {}
+        return next;
+      });
+    }, []);
   const t = useCallback((key: TranslationKey) => translations[language][key], [language]);
   const tr = useCallback((arabic: string, english: string) => language === "ar" ? arabic : english, [language]);
   const value = useMemo(() => ({ language, setLanguage, toggleLanguage, t, tr }), [language, setLanguage, toggleLanguage, t, tr]);
