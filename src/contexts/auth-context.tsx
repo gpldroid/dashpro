@@ -40,7 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!active) return;
       setSession(nextSession);
-      if (!nextSession?.user) setProfile(null);
+      setProfile((current) =>
+        nextSession?.user?.id === current?.id ? current : null
+      );
       setLoading(false);
     });
 
@@ -60,10 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
 
     async function loadProfile() {
-      if (!user) {
-        setProfile(null);
-        return;
-      }
+      if (!user) return;
 
       const { data, error } = await supabase
         .from("profiles")
