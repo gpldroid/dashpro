@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { Sidebar } from "@/components/dashboard/sidebar";
-import { OWNER_USER_ID, useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts/auth-context";
 
 const mobileLinks = [
   { href: "/dashboard", label: "الرئيسية" },
@@ -25,7 +25,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     return <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500 dark:bg-slate-950 dark:text-slate-400">جارٍ التحقق من الجلسة…</div>;
   }
 
-  if (!user || user.id !== OWNER_USER_ID) {
+  if (!user) {
     if (typeof window !== "undefined") router.replace("/login");
     return null;
   }
