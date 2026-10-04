@@ -26,7 +26,8 @@ const translations = {
     backProjects:"العودة إلى المشاريع", createProjectTitle:"إنشاء مشروع جديد",
     createProjectDescription:"واجهة إنشاء المشروع وربطها بقاعدة البيانات ستكون ضمن مرحلة إدارة المشاريع. هيكل المصادقة ولوحة التحكم جاهز الآن.",
     openEditor:"جارٍ فتح المحرر…", noBloggerProject:"لا يوجد مشروع Blogger XML بعد.",
-    bloggerOnly:"محرر Blogger XML مخصص لمشاريع القوالب بصيغة Blogger XML."
+    bloggerOnly:"محرر Blogger XML مخصص لمشاريع القوالب بصيغة Blogger XML.",
+    collapseSidebar:"طي القائمة الجانبية", expandSidebar:"توسيع القائمة الجانبية", connected:"متصل بالإنترنت", disconnected:"غير متصل بالإنترنت"
   },
   en: {
     workspace:"Workspace", dashboard:"Dashboard", overview:"Overview", projects:"Projects",
@@ -50,7 +51,8 @@ const translations = {
     backProjects:"Back to projects", createProjectTitle:"Create a new project",
     createProjectDescription:"The project creation flow and database integration will be added in the project management phase. Authentication and the dashboard foundation are ready.",
     openEditor:"Opening editor…", noBloggerProject:"There is no Blogger XML project yet.",
-    bloggerOnly:"The Blogger XML editor is intended for Blogger XML template projects."
+    bloggerOnly:"The Blogger XML editor is intended for Blogger XML template projects.",
+    collapseSidebar:"Collapse sidebar", expandSidebar:"Expand sidebar", connected:"Online", disconnected:"Offline"
   }
 } as const;
 
