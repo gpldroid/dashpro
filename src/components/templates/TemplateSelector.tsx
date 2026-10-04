@@ -3,4 +3,9 @@ import { Check,Newspaper,ShoppingBag,UserRound } from "lucide-react";
 import { starterTemplates } from "@/data/starterTemplates";
 import type { StarterTemplate } from "@/types";
 import { useLanguage } from "@/contexts/language-context";
+const templateCopy:Record<string,{name:string;description:string}>={
+ "dashpro-news":{name:"DashPro News Magazine",description:"Responsive RTL magazine template for news and categories."},
+ "dashpro-store":{name:"DashPro Mini Store",description:"Lightweight storefront interface for displaying products."},
+ "dashpro-personal":{name:"DashPro Personal Blog",description:"Simple personal template focused on reading and writing."}
+};
 export function TemplateSelector({selected,onSelect}:{selected?:string;onSelect:(t:StarterTemplate)=>void}){const {language}=useLanguage();return <div className="grid gap-3 md:grid-cols-3">{starterTemplates.map(t=><button key={t.id} type="button" onClick={()=>onSelect(t)} className={`rounded-2xl border p-4 text-right transition ${selected===t.id?"border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10":"border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"}`}><div className="mb-3 flex items-center justify-between"><span className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">{t.category==="news"?<Newspaper className="size-5"/>:t.category==="store"?<ShoppingBag className="size-5"/>:<UserRound className="size-5"/>}</span>{selected===t.id&&<Check className="size-5 text-indigo-600"/>}</div><h3 className="font-bold">{language==="ar"?t.name:t.name}<\/h3><p className="mt-1 text-xs leading-6 text-slate-500">{language==="ar"?t.description:t.description}</p><div className="mt-3 flex flex-wrap gap-1">{t.tags.map(tag=><span key={tag} className="rounded-full bg-slate-100 px-2 py-1 text-[10px] dark:bg-slate-800">{tag}</span>)}</div></button>)}</div>}
