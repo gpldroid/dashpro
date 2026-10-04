@@ -7,6 +7,7 @@ import { LayoutBuilder } from "@/components/builder/LayoutBuilder";
 import { StyleCustomizer } from "@/components/builder/StyleCustomizer";
 import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
 import { EditorStatusBar } from "@/components/editor/EditorStatusBar";
+import { SnippetManager } from "@/components/snippets/SnippetManager";
 import { EditorToolbar, type SaveState } from "@/components/editor/EditorToolbar";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -32,10 +33,13 @@ export function BloggerEditor({
   const [cursor, setCursor] = useState({ line: 1, column: 1 });
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveRef = useRef<(source?: string) => Promise<void>>(async () => undefined);
+  const insertAtCursorRef = useRef<(text: string) => void>(() => undefined);
 
   const analysis = useMemo(() => parseBloggerXml(code), [code]);
   const diagnostics = analysis.diagnostics;
-  const [builderTab, setBuilderTab] = useState<"preview" | "layout" | "style">("preview");
+  const [builderTab, setBuilderTab] = useState<
+    "preview" | "layout" | "style" | "snippets"
+  >("preview");
   const [previewCss, setPreviewCss] = useState("");
 
   const save = useCallback(
@@ -227,6 +231,9 @@ export function BloggerEditor({
           onSave={(source) => void save(source)}
           onFormat={format}
           onCursorChange={(line, column) => setCursor({ line, column })}
+          onEditorReady={(insert) => {
+            insertAtCursorRef.current = insert;
+          }}
         />
 
         <div className="border-t border-slate-800 bg-slate-950 p-3">
@@ -235,13 +242,22 @@ export function BloggerEditor({
               ["preview", "المعاينة الحية"],
               ["layout", "باني التخطيط"],
               ["style", "المظهر والألوان"],
+              ["snippets", "مكتبة الأكواد"],
             ] as const).map(([value, label]) => (
               <button key={value} type="button" onClick={() => setBuilderTab(value)} className={builderTab === value ? "rounded-lg bg-white px-3 py-2 text-xs font-bold text-slate-900" : "rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-slate-300"}>{label}</button>
             ))}
           </div>
           {builderTab === "preview" ? <PreviewCanvas code={code} customCss={previewCss} /> : null}
           {builderTab === "layout" ? <LayoutBuilder sections={analysis.sections} onReorder={reorderWidgets} onAddComponent={addComponent} /> : null}
-          {builderTab === "style" ? <StyleCustomizer variables={analysis.skin?.variables ?? []} onChange={updateSkinVariable} /> : null}
+          {builderTab === "style" ? (
+            <StyleCustomizer
+              variables={analysis.skin?.variables ?? []}
+              onChange={updateSkinVariable}
+            />
+          ) : null}
+          {builderTab === "snippets" ? (
+            <SnippetManager onInsert={(snippet) => insertAtCursorRef.current(snippet)} />
+          ) : null}
         </div>
 
         <EditorStatusBar
