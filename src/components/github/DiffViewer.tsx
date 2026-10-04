@@ -1,0 +1,3 @@
+"use client";
+import { Diff } from "lucide-react";
+export function DiffViewer({before,after}:{before:string;after:string}){const a=before.split("\n"),b=after.split("\n"),max=Math.max(a.length,b.length);return <div className="overflow-auto rounded-xl border bg-slate-950 p-3 font-mono text-xs text-slate-200" dir="ltr"><div className="mb-2 flex items-center gap-2 text-slate-400"><Diff className="size-4"/>مقارنة النص</div>{Array.from({length:max},(_,i)=>{const same=a[i]===b[i];return <div key={i} className={same?"":"bg-amber-500/10"}><span className="me-3 inline-block w-8 text-right text-slate-500">{i+1}</span>{same?<span> {a[i]??""}</span>:<><span className="text-rose-300">- {a[i]??""}</span><br/><span className="text-emerald-300">+ {b[i]??""}</span></>}</div>})}</div>}
