@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { Menu, X } from "lucide-react";
+import { Braces, Code2, Github, GitPullRequest, HardDrive, Menu, Puzzle, X } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { useAuth } from "@/contexts/auth-context";
@@ -100,6 +100,41 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </nav>
           )}
         </div>
+
+        <nav
+          aria-label={language === "ar" ? "شريط أدوات مساحة العمل" : "Workspace tools"}
+          className="hidden min-h-14 items-center gap-2 overflow-x-auto border-b border-slate-200/70 bg-white/70 px-5 py-2 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/60 xl:flex xl:px-8"
+        >
+          <span className="me-2 shrink-0 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            {language === "ar" ? "أدوات سريعة" : "Quick tools"}
+          </span>
+          {[
+            { href: "/dashboard", label: language === "ar" ? "الاستوديو" : "Studio", icon: Braces },
+            { href: "/dashboard/editor", label: t("templateEditor"), icon: Code2 },
+            { href: "/dashboard/github", label: t("githubManager"), icon: Github },
+            { href: "/dashboard/github/delivery", label: t("githubDelivery"), icon: GitPullRequest },
+            { href: "/dashboard/snippets", label: t("snippets"), icon: Puzzle },
+            { href: "/dashboard/local-files", label: t("localFiles"), icon: HardDrive }
+          ].map(item => {
+            const active = item.href === "/dashboard"
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(item.href + "/");
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`inline-flex min-h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-xs font-semibold transition-colors ${active
+                  ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
+                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"}`}
+              >
+                <Icon className="size-3.5" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
         <main className="min-w-0 flex-1 overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 xl:px-8 xl:py-8">
           <div className="mx-auto w-full min-w-0 max-w-[1720px]">
