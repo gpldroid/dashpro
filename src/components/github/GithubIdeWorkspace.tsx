@@ -83,7 +83,7 @@ export function GithubIdeWorkspace(){
     if(!repo)return;
     setLoading(true);setError("");
     try{const[o,r]=repo.full_name.split("/");const[b,t]=await Promise.all([githubService.listBranches(session,o,r),githubService.getTree(session,o,r,branch||repo.default_branch)]);setBranches(b);setTree(t.filter(x=>x.type==="blob"));setStatus(tr("تم تحديث GitHub","GitHub refreshed"))}catch(e){setError(getErrorMessage(e))}finally{setLoading(false)}
-  },[session,repo,branch]);
+  },[session,repo,branch,tr]);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- starts an async GitHub fetch
   useEffect(()=>{if(repo)void loadRemote()},[repo,branch,loadRemote]);
 
