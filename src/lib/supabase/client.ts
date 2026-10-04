@@ -2,16 +2,17 @@ import { createBrowserClient } from "@supabase/ssr";
 
 import type { Database } from "@/types/database";
 
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??
+  "https://sqseywflmchnytighlqj.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  "sb_publishable_wwG2gkXDuPhuwQ6zot1kew_5HQtvt2E";
+
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabasePublishableKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabasePublishableKey) {
-    throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
-    );
-  }
-
-  return createBrowserClient<Database>(supabaseUrl, supabasePublishableKey);
+  return createBrowserClient<Database>(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 }
