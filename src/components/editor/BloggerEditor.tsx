@@ -38,18 +38,6 @@ export function BloggerEditor({
   const [builderTab, setBuilderTab] = useState<"preview" | "layout" | "style">("preview");
   const [previewCss, setPreviewCss] = useState("");
 
-  const updateSkinVariable = useCallback((name: string, value: string) => {
-    const escaped = name.replace(/[.*+?^$()|[\]\\]/g, "\\  const diagnostics = analysis.diagnostics;");
-    const pattern = new RegExp("(<Variable\\\\b[^>]*\\\\bname=[\\\"']" + escaped + "[\\\"'][^>]*?(?:value|default)=[\\\"'])([^\\\"']*)([\\\"'])", "i");
-    const next = code.replace(pattern, "$1" + value + "$3");
-    if (next !== code) updateCode(next);
-    if (/font/i.test(name)) {
-      setPreviewCss("@import url('https://fonts.googleapis.com/css2?family=" + encodeURIComponent(value).replace(/%20/g, "+") + ":wght@400;500;600;700&display=swap');body{font-family:'" + value + "',sans-serif}");
-    } else {
-      setPreviewCss("--" + name + ":" + value + ";");
-    }
-  }, [code]);
-
   const save = useCallback(
     async (source = code) => {
       setSaveState("saving");
@@ -98,6 +86,15 @@ export function BloggerEditor({
     },
     [scheduleSave],
   );
+
+  const updateSkinVariable = useCallback((name: string, value: string) => {
+    const escaped = name.replace(/[.*+?^$()|[\]\\]/g, "\\  const reorderWidgets = useCallback");
+    const pattern = new RegExp("(<Variable\\\\b[^>]*\\\\bname=[\\\"']" + escaped + "[\\\"'][^>]*?(?:value|default)=[\\\"'])([^\\\"']*)([\\\"'])", "i");
+    const next = code.replace(pattern, "$1" + value + "$3");
+    if (next !== code) updateCode(next);
+    if (/font/i.test(name)) setPreviewCss("body{font-family:" + value + ",sans-serif}");
+    else setPreviewCss("--" + name + ":" + value + ";");
+  }, [code, updateCode]);
 
   const reorderWidgets = useCallback((sectionId: string, activeId: string, overId: string) => {
     try {
