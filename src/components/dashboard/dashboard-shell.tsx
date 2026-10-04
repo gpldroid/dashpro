@@ -30,10 +30,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
