@@ -66,7 +66,7 @@ export function CodeEditor({
 
     monaco.languages.registerCompletionItemProvider("xml", {
       triggerCharacters: ["<", ":", " "],
-      provideCompletionItems(model, position) {
+      provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
         const word = model.getWordUntilPosition(position);
         const range = {
           startLineNumber: position.lineNumber,
