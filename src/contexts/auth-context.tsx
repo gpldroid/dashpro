@@ -14,8 +14,6 @@ import type { Session, User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import type { ProfileRow } from "@/types/database";
 
-export const OWNER_USER_ID = "889f479f-766b-4bbf-b3be-043366800306";
-
 type AuthContextValue = {
   user: User | null;
   session: Session | null;
@@ -43,13 +41,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!active) return;
-      if (nextSession?.user && nextSession.user.id !== OWNER_USER_ID) {
-        setSession(null);
-        setProfile(null);
-        setLoading(false);
-        void Promise.resolve().then(() => supabase.auth.signOut());
-        return;
-      }
       setSession(nextSession);
       setProfile((current) =>
         nextSession?.user?.id === current?.id ? current : null
@@ -59,15 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void supabase.auth.getSession().then(({ data, error }) => {
       if (!active) return;
-      const nextSession = error ? null : data.session;
-      if (nextSession?.user && nextSession.user.id !== OWNER_USER_ID) {
-        setSession(null);
-        setProfile(null);
-        setLoading(false);
-        void supabase.auth.signOut();
-        return;
-      }
-      setSession(nextSession);
+      setSession(error ? null : data.session);
       setLoading(false);
     });
 
